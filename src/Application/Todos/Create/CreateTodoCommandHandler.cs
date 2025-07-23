@@ -12,35 +12,35 @@ internal sealed class CreateTodoCommandHandler(
     IApplicationDbContext context,
     IDateTimeProvider dateTimeProvider,
     IUserContext userContext)
-    : ICommandHandler<CreateTodoCommand, Guid>
+    : ICommandHandler<CreateTodoCommand, long>
 {
-    public async Task<Result<Guid>> Handle(CreateTodoCommand command, CancellationToken cancellationToken)
+    public async Task<Result<long>> Handle(CreateTodoCommand command, CancellationToken cancellationToken)
     {
         if (userContext.UserId != command.UserId)
         {
-            return Result.Failure<Guid>(UserErrors.Unauthorized());
+            return Result.Failure<long>(UserErrors.Unauthorized());
         }
 
-        User? user = await context.Users.AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
+        //User? user = await context.Users.AsNoTracking()
+        //    .SingleOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
 
-        if (user is null)
-        {
-            return Result.Failure<Guid>(UserErrors.NotFound(command.UserId));
-        }
+        //if (user is null)
+        //{
+        //    return Result.Failure<long>(UserErrors.NotFound(command.UserId));
+        //}
 
         var todoItem = new TodoItem
         {
-            UserId = user.Id,
+            
             Description = command.Description,
             Priority = command.Priority,
             DueDate = command.DueDate,
             Labels = command.Labels,
             IsCompleted = false,
-            CreatedAt = dateTimeProvider.UtcNow
+            CreatedAt = dateTimeProvider.UtcNow.Date
         };
 
-        todoItem.Raise(new TodoItemCreatedDomainEvent(todoItem.Id));
+        //todoItem.Raise(new TodoItemCreatedDomainEvent(todoItem.Id));
 
         context.TodoItems.Add(todoItem);
 

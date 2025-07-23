@@ -13,9 +13,9 @@ services:
     image: postgres:17
     container_name: postgres
     environment:
-      - POSTGRES_DB=clean-architecture
+      - POSTGRES_DB=book-my-event
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=123456
     volumes:
       - ./.containers/db:/var/lib/postgresql/data
     ports:

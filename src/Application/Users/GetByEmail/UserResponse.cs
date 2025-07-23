@@ -2,7 +2,7 @@
 
 public sealed record UserResponse
 {
-    public Guid Id { get; init; }
+    public long Id { get; init; }
 
     public string Email { get; init; }
 

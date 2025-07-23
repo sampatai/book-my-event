@@ -2,4 +2,4 @@
 
 namespace Domain.Todos;
 
-public sealed record TodoItemDeletedDomainEvent(Guid TodoItemId) : IDomainEvent;
+public sealed record TodoItemDeletedDomainEvent(long TodoItemId) : IDomainEvent;

@@ -2,4 +2,4 @@
 
 namespace Application.Todos.Get;
 
-public sealed record GetTodosQuery(Guid UserId) : IQuery<List<TodoResponse>>;
+public sealed record GetTodosQuery(long UserId) : IQuery<List<TodoResponse>>;

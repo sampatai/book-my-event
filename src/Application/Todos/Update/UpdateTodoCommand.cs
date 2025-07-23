@@ -3,5 +3,5 @@ using Application.Abstractions.Messaging;
 namespace Application.Todos.Update;
 
 public sealed record UpdateTodoCommand(
-    Guid TodoItemId,
+    long TodoItemId,
     string Description) : ICommand;

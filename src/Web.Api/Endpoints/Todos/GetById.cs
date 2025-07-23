@@ -11,7 +11,7 @@ internal sealed class GetById : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("todos/{id:guid}", async (
-            Guid id,
+            long id,
             IQueryHandler<GetTodoByIdQuery, TodoResponse> handler,
             CancellationToken cancellationToken) =>
         {

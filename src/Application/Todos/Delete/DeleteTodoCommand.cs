@@ -2,4 +2,4 @@
 
 namespace Application.Todos.Delete;
 
-public sealed record DeleteTodoCommand(Guid TodoItemId) : ICommand;
+public sealed record DeleteTodoCommand(long TodoItemId) : ICommand;

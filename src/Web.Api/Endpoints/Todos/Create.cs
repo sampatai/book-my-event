@@ -11,7 +11,7 @@ internal sealed class Create : IEndpoint
 {
     public sealed class Request
     {
-        public Guid UserId { get; set; }
+        public long UserId { get; set; }
         public string Description { get; set; }
         public DateTime? DueDate { get; set; }
         public List<string> Labels { get; set; } = [];
@@ -22,7 +22,7 @@ internal sealed class Create : IEndpoint
     {
         app.MapPost("todos", async (
             Request request,
-            ICommandHandler<CreateTodoCommand, Guid> handler,
+            ICommandHandler<CreateTodoCommand, long> handler,
             CancellationToken cancellationToken) =>
         {
             var command = new CreateTodoCommand
@@ -34,7 +34,7 @@ internal sealed class Create : IEndpoint
                 Priority = (Priority)request.Priority
             };
 
-            Result<Guid> result = await handler.Handle(command, cancellationToken);
+            Result<long> result = await handler.Handle(command, cancellationToken);
 
             return result.Match(Results.Ok, CustomResults.Problem);
         })

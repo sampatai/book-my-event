@@ -11,7 +11,7 @@ internal sealed class Complete : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPut("todos/{id:guid}/complete", async (
-            Guid id,
+            long id,
             ICommandHandler<CompleteTodoCommand> handler,
             CancellationToken cancellationToken) =>
         {

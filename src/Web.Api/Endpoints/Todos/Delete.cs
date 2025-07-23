@@ -11,7 +11,7 @@ internal sealed class Delete : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapDelete("todos/{id:guid}", async (
-            Guid id,
+            long id,
             ICommandHandler<DeleteTodoCommand> handler,
             CancellationToken cancellationToken) =>
         {

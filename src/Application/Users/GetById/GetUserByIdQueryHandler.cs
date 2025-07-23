@@ -21,7 +21,7 @@ internal sealed class GetUserByIdQueryHandler(IApplicationDbContext context, IUs
             .Where(u => u.Id == query.UserId)
             .Select(u => new UserResponse
             {
-                Id = u.Id,
+               // Id = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Email = u.Email
