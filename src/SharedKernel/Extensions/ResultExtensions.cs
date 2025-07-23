@@ -1,6 +1,4 @@
-﻿using SharedKernel;
-
-namespace Web.Api.Extensions;
+﻿namespace SharedKernel;
 
 public static class ResultExtensions
 {

@@ -1,4 +1,5 @@
-﻿namespace Web.Api.Endpoints;
+﻿
+namespace SharedKernel;
 
 public interface IEndpoint
 {

@@ -4,6 +4,7 @@ using HealthChecks.UI.Client;
 using Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
+using SharedKernel;
 using Web.Api;
 using Web.Api.Extensions;
 

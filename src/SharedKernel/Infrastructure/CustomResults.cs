@@ -1,6 +1,5 @@
-﻿using SharedKernel;
-
-namespace Web.Api.Infrastructure;
+﻿
+namespace SharedKernel;
 
 public static class CustomResults
 {

@@ -1,6 +1,4 @@
-﻿using Web.Api.Middleware;
-
-namespace Web.Api.Extensions;
+﻿namespace SharedKernel;
 
 public static class MiddlewareExtensions
 {

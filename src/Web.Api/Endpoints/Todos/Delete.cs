@@ -1,8 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
 using Application.Todos.Delete;
 using SharedKernel;
-using Web.Api.Extensions;
-using Web.Api.Infrastructure;
 
 namespace Web.Api.Endpoints.Todos;
 

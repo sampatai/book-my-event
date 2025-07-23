@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Web.Api.Endpoints;
 
-namespace Web.Api.Extensions;
+
+namespace SharedKernel;
 
 public static class EndpointExtensions
 {
@@ -29,9 +29,7 @@ public static class EndpointExtensions
         IEndpointRouteBuilder builder = routeGroupBuilder is null ? app : routeGroupBuilder;
 
         foreach (IEndpoint endpoint in endpoints)
-        {
             endpoint.MapEndpoint(builder);
-        }
 
         return app;
     }

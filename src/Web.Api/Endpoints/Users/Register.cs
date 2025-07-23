@@ -2,7 +2,7 @@
 using Application.Users.Register;
 using SharedKernel;
 using Web.Api.Extensions;
-using Web.Api.Infrastructure;
+
 
 namespace Web.Api.Endpoints.Users;
 
