@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using JasperFx.Core.IoC;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 
@@ -8,14 +9,11 @@ public static class EndpointExtensions
 {
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {
-        ServiceDescriptor[] serviceDescriptors = assembly
-            .DefinedTypes
-            .Where(type => type is { IsAbstract: false, IsInterface: false } &&
-                           type.IsAssignableTo(typeof(IEndpoint)))
-            .Select(type => ServiceDescriptor.Transient(typeof(IEndpoint), type))
-            .ToArray();
-
-        services.TryAddEnumerable(serviceDescriptors);
+        services.Scan(scan => scan
+            .FromAssemblies(assembly)
+            .AddClasses(classes => classes.AssignableTo<IEndpoint>())
+            .As<IEndpoint>()
+            .WithTransientLifetime());
 
         return services;
     }

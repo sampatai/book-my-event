@@ -39,17 +39,10 @@ public abstract class Entity
 
     public override int GetHashCode()
     {
-        // For non-transient, use Id hashcode
-        if (!IsTransient())
-            return Id.GetHashCode();
-
-        // For transient entities, return a stable hash code
-        // You can return a constant or hash based on type name
-        return GetType().GetHashCode();
+        return !IsTransient() ? Id.GetHashCode() : GetType().GetHashCode();
     }
-
-    // Removed operator overloads as per Sonar recommendation
 }
+
 
 public abstract class AuditableEntity : Entity
    

@@ -2,16 +2,18 @@ using System.Reflection;
 using Application;
 using HealthChecks.UI.Client;
 using Infrastructure;
+using Infrastructure.Database;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using SharedKernel;
 using Web.Api;
 using Web.Api.Extensions;
 
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
-
+builder.Host.AddWolverineApplication(builder.Configuration, "Database");
 builder.Services.AddSwaggerGenWithAuth();
 
 builder.Services
@@ -29,7 +31,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithUi();
 
-    app.ApplyMigrations();
+    app.ApplyMigrations<ApplicationDbContext>();
 }
 
 app.MapHealthChecks("health", new HealthCheckOptions
@@ -53,3 +55,7 @@ app.MapControllers();
 await app.RunAsync();
 
 
+namespace Web.Api
+{
+    public partial class Program { }
+}

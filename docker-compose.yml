@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   web-api:
     image: ${DOCKER_REGISTRY-}webapi
@@ -8,6 +10,10 @@ services:
     ports:
       - 5000:8080
       - 5001:8081
+    depends_on:
+      - postgres
+    networks:
+      - app-network
 
   postgres:
     image: postgres:17
@@ -20,6 +26,8 @@ services:
       - ./.containers/db:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    networks:
+      - app-network
 
   seq:
     image: datalust/seq:2024.3
@@ -28,3 +36,8 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - 8081:80
+    networks:
+      - app-network
+
+networks:
+  app-network:

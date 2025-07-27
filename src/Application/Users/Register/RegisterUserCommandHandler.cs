@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
-using Application.Abstractions.Messaging;
+
 using Domain.Users;
+using Domain.Users.Root;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel;
 
@@ -17,21 +17,21 @@ internal sealed class RegisterUserCommandHandler(IApplicationDbContext context, 
             return Result.Failure<long>(UserErrors.EmailNotUnique);
         }
 
-        var user = new User
-        {
+        //var user = new User
+        //{
            
-            Email = command.Email,
-            FirstName = command.FirstName,
-            LastName = command.LastName,
-            PasswordHash = passwordHasher.Hash(command.Password)
-        };
+        //    Email = command.Email,
+        //    FirstName = command.FirstName,
+        //    LastName = command.LastName,
+        //    PasswordHash = passwordHasher.Hash(command.Password)
+        //};
 
-        user.Raise(new UserRegisteredDomainEvent(user.Id));
+        //user.Raise(new UserRegisteredDomainEvent(user.Id));
 
-        context.Users.Add(user);
+        //context.Users.Add(user);
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return user.Id;
+        //return user.Id;
     }
 }

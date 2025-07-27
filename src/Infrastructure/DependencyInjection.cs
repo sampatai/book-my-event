@@ -1,10 +1,8 @@
 ﻿using System.Text;
 using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
-using Infrastructure.DomainEvents;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +31,6 @@ public static class DependencyInjection
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         return services;
     }
@@ -43,13 +40,36 @@ public static class DependencyInjection
         string? connectionString = configuration.GetConnectionString("Database");
 
         services.AddDbContext<ApplicationDbContext>(
-            options => options
+            options =>
+            {
+                options
                 .UseNpgsql(connectionString, npgsqlOptions =>
                     npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention();
+                // This sets the default tracking behavior to NoTracking
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            }, ServiceLifetime.Scoped);
 
-        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+        services.AddDataProtection();
 
+        services.AddIdentityCore<User>(options =>
+        {
+            // Password configuration
+            options.Password.RequiredLength = 8;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+
+            // For email confirmation
+            options.SignIn.RequireConfirmedEmail = true;
+        })
+        .AddRoles<IdentityRole<long>>() // Use IdentityRole<long>
+        .AddRoleManager<RoleManager<IdentityRole<long>>>() // Use RoleManager with long as the key type
+        .AddEntityFrameworkStores<ApplicationDbContext>() // Provide our context
+        .AddSignInManager<SignInManager<User>>() // Use SignInManager
+        .AddUserManager<UserManager<User>>() // Use UserManager to create users
+        .AddDefaultTokenProviders(); // Enable token providers for email confirmation
         return services;
     }
 

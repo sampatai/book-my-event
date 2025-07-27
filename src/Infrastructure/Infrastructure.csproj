@@ -4,6 +4,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
@@ -15,6 +16,12 @@
 
   <ItemGroup>
 	<InternalsVisibleTo Include="ArchitectureTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Database\Factory\" />
+    <Folder Include="Database\Migrations\" />
+    <Folder Include="DomainEvents\" />
   </ItemGroup>
 
 </Project>

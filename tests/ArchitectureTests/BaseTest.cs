@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using Application.Abstractions.Messaging;
-using Domain.Users;
+using Domain.Users.Root;
 using Infrastructure.Database;
+using SharedKernel;
 using Web.Api;
 
 namespace ArchitectureTests;

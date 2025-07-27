@@ -1,83 +1,84 @@
-﻿using Application.Abstractions.Data;
+﻿
+
 using Domain.Todos;
-using Domain.Users;
-using Infrastructure.DomainEvents;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using SharedKernel;
+using Wolverine;
+using Wolverine.Runtime;
 
 namespace Infrastructure.Database;
 
-public sealed class ApplicationDbContext(
-    DbContextOptions<ApplicationDbContext> options,
-    IDomainEventsDispatcher domainEventsDispatcher)
-    : DbContext(options), IApplicationDbContext
+public sealed class ApplicationDbContext
+
+    : IdentityDbContext<User, IdentityRole<long>, long>, IUnitOfWork
 {
-    public DbSet<User> Users { get; set; }
+    private readonly IMessageBus _messageBus;
 
-    public DbSet<TodoItem> TodoItems { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
+    IMessageBus messageBus) : base(options)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        //_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        //_currentUserHelper = currentUserHelper ?? throw new ArgumentNullException(nameof(currentUserHelper));
+        _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+        System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
 
-        modelBuilder.HasDefaultSchema(Schemas.Default);
     }
 
+    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        // Apply all configurations in the assembly
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        // Set the default schema (if needed)
+        builder.HasDefaultSchema(Schemas.Default);
+    }
+
+    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken)
+    {
+        UpdateAuditableEntities();
+
+        // 1. Dispatch domain events BEFORE save — ensures atomicity
+        await PublishDomainEventsAsync();
+        // 2. Save changes
+        await base.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    private void UpdateAuditableEntities()
+    {
+        IEnumerable<EntityEntry> entries = ChangeTracker
+            .Entries()
+            .Where(e => e.Entity is AuditableEntity &&
+                       (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (EntityEntry entry in entries)
+        {
+            var entity = (AuditableEntity)entry.Entity;
+
+            if (entry.State == EntityState.Added)
+                entity.SetCreationAudits(0); // Replace 0 with actual userId
+            else
+                entity.SetModificationAudits(0); // Replace 0 with actual userId
+        }
+    }
 
     private async Task PublishDomainEventsAsync()
     {
         var domainEvents = ChangeTracker
             .Entries<Entity>()
-            .Select(entry => entry.Entity)
+            .Select(e => e.Entity)
             .SelectMany(entity =>
             {
-                var domainEvents = entity.DomainEvents.ToList(); // Explicitly convert IReadOnlyCollection to List
-                entity.ClearDomainEvents();
-                return domainEvents;
+                var events = entity.DomainEvents.ToList(); // Copy events
+                entity.ClearDomainEvents();                // Clear from entity
+                return events;
             })
             .ToList();
 
-        await domainEventsDispatcher.DispatchAsync(domainEvents);
-    }
-
-    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken)
-    {
-        IEnumerable<EntityEntry> entries = ChangeTracker
-           .Entries()
-           .Where(e => e.Entity is AuditableEntity && (
-                   e.State == EntityState.Added
-                   || e.State == EntityState.Modified));
-
-        foreach (EntityEntry entityEntry in entries)
-        {
-            var entity = (AuditableEntity)entityEntry.Entity;
-            // var currentUser = (await _currentUserHelper.GetCurrentUser()).UserId; // Replace with actual user context
-
-            if (entityEntry.State == EntityState.Added)
-            {
-                entity.SetCreationAudits(0);
-            }
-            else
-            {
-                entity.SetModificationAudits(0);
-            }
-        }
-
-        // When should you publish domain events?
-        //
-        // 1. BEFORE calling SaveChangesAsync
-        //     - domain events are part of the same transaction
-        //     - immediate consistency
-        // 2. AFTER calling SaveChangesAsync
-        //     - domain events are a separate transaction
-        //     - eventual consistency
-        //     - handlers can fail
-        await PublishDomainEventsAsync();
-
-        await base.SaveChangesAsync(cancellationToken);
-
-        return true;
+        foreach (IDomainEvent? domainEvent in domainEvents)
+            await _messageBus.PublishAsync(domainEvent);
     }
 }

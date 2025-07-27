@@ -5,6 +5,11 @@
   <!--.NET 9 packages. Most of them will work on .NET 8. If you need to, make the updates here individually.-->
   <ItemGroup>
     <!-- Static code analysis -->
+    <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.15.0.120848" />
     <!-- Application -->
@@ -35,6 +40,10 @@
     <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
+    <PackageVersion Include="WolverineFx" Version="4.7.0" />
+    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="4.7.0" />
+    <PackageVersion Include="WolverineFx.FluentValidation" Version="4.7.0" />
+    <PackageVersion Include="WolverineFx.Postgresql" Version="4.7.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
