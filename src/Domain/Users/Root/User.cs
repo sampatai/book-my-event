@@ -13,14 +13,9 @@ public class User : IdentityUser<long>, IAggregateRoot
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public string AlternativeContact { get; private set; }
-    private readonly List<RefreshToken> _refreshTokens = new();
-    public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens;
+    
     public Address Address { get; private set; }
-    public void SetRefereshToken(string token, DateTime expireDate)
-    {
-        _refreshTokens.Clear();
-        _refreshTokens.Add(new RefreshToken(token, expireDate));
-    }
+  
     public User(string firstname,
         string lastname,
         string alternativeContact,

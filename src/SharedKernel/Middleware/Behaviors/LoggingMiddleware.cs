@@ -14,25 +14,29 @@ public class LoggingMiddleware<T>
         _logger = logger;
     }
 
-    // Middleware signature in Wolverine:
-    // (context, message, next)
-    public async Task InvokeAsync(IMessageContext context, T message, Func<Task> next)
+    // Executed before the handler
+    public ValueTask BeforeAsync(T message, IMessageContext context)
     {
-        string messageName = typeof(T).Name;
+        _logger.LogInformation("Starting processing of {Command}", typeof(T).Name);
+        return ValueTask.CompletedTask;
+    }
 
-        _logger.LogInformation("Processing  {Command}", messageName);
+    // Executed after the handler successfully completes
+    public ValueTask AfterAsync(T message, IMessageContext context)
+    {
+        _logger.LogInformation("Successfully processed {Command}", typeof(T).Name);
+        return ValueTask.CompletedTask;
+    }
 
-        try
+    // Executed after everything (success or exception)
+    public ValueTask FinallyAsync(T message, IMessageContext context, Exception? ex)
+    {
+        if (ex != null)
         {
-            await next(); // Execute the next middleware/handler
-
-            _logger.LogInformation("Completed  {Command}", messageName);
+            _logger.LogError(ex, "Processing of {Command} failed", typeof(T).Name);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Completed  {Command} with error", messageName);
-            throw new InvalidOperationException($"Error processing  {messageName}", ex);
-        }
+        return ValueTask.CompletedTask;
     }
 }
+
 

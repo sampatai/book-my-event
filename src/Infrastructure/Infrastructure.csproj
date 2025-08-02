@@ -22,6 +22,7 @@
     <Folder Include="Database\Factory\" />
     <Folder Include="Database\Migrations\" />
     <Folder Include="DomainEvents\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

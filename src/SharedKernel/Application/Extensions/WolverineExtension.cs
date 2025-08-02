@@ -31,7 +31,7 @@ public static class WolverineExtensions
                                  ?? throw new InvalidOperationException($"Connection string '{connectionStringName}' not found.");
 
             // Configure Wolverine persistence with PostgreSQL
-            opts.PersistMessagesWithPostgresql(connectionString, "wolverine");
+            opts.PersistMessagesWithPostgresql(connectionString, schemaName: "wolverine");
 
             // Durability for development
             opts.Durability.Mode = DurabilityMode.Solo;

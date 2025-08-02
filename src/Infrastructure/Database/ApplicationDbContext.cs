@@ -39,11 +39,11 @@ public sealed class ApplicationDbContext
     {
         UpdateAuditableEntities();
 
-        // 1. Dispatch domain events BEFORE save — ensures atomicity
-        await PublishDomainEventsAsync();
+      
         // 2. Save changes
         await base.SaveChangesAsync(cancellationToken);
-
+        // 1. Dispatch domain events BEFORE save — ensures atomicity
+        await PublishDomainEventsAsync();
         return true;
     }
 

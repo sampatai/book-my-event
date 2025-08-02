@@ -8,12 +8,39 @@ using Serilog;
 using SharedKernel;
 using Web.Api;
 using Web.Api.Extensions;
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
+using Wolverine.FluentValidation;
+using Wolverine.Postgresql;
 
+const string ConnectionStringName = "DefaultConnection";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
-builder.Host.AddWolverineApplication(builder.Configuration, "Database");
+// Configure Serilog
+builder.Host.UseSerilog((context, loggerConfig) =>
+    loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+// Keep and modify the UseWolverine configuration
+builder.Host.UseWolverine(opts =>
+{
+    opts.UseFluentValidation();
+    opts.UseEntityFrameworkCoreTransactions();
+
+    string connectionString = builder.Configuration.GetConnectionString(ConnectionStringName)
+        ?? throw new InvalidOperationException($"Connection string '{ConnectionStringName}' not found.");
+
+    opts.PersistMessagesWithPostgresql(connectionString, schemaName: "wolverine");
+    opts.Durability.Mode = DurabilityMode.Solo;
+
+    // Include both assemblies in a single configuration
+    opts.Discovery.IncludeAssembly(typeof(Application.DependencyInjection).Assembly);
+    opts.Discovery.IncludeAssembly(typeof(Infrastructure.DependencyInjection).Assembly);
+
+    opts.Policies.AddMiddleware(typeof(LoggingMiddleware<>));
+});
+
+
 builder.Services.AddSwaggerGenWithAuth();
 
 builder.Services
@@ -27,33 +54,26 @@ WebApplication app = builder.Build();
 
 app.MapEndpoints();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerWithUi();
-
-    app.ApplyMigrations<ApplicationDbContext>();
-}
-
 app.MapHealthChecks("health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
 app.UseRequestContextLogging();
-
 app.UseSerilogRequestLogging();
-
 app.UseExceptionHandler();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerWithUi();
+    app.ApplyMigrations<ApplicationDbContext>();
+}
+
 app.UseAuthentication();
-
 app.UseAuthorization();
-
-// REMARK: If you want to use Controllers, you'll need this.
 app.MapControllers();
 
 await app.RunAsync();
-
 
 namespace Web.Api
 {

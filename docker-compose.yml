@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   web-api:
     image: ${DOCKER_REGISTRY-}webapi
-    container_name: web-api
+    container_name: book-my-event-web-api
     build:
       context: .
       dockerfile: src/Web.Api/Dockerfile
@@ -13,7 +11,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - app-network
+      - bookmyevent-network
 
   postgres:
     image: postgres:17
@@ -27,7 +25,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - app-network
+      - bookmyevent-network
 
   seq:
     image: datalust/seq:2024.3
@@ -37,7 +35,17 @@ services:
     ports:
       - 8081:80
     networks:
-      - app-network
+      - bookmyevent-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: bookmyevent@ai.com
+      PGADMIN_DEFAULT_PASSWORD: bookmyevent
+    ports:
+      - "8080:80"
+    networks:
+      - bookmyevent-network
 
 networks:
-  app-network:
+  bookmyevent-network:
