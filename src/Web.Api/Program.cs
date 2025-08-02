@@ -30,7 +30,7 @@ builder.Host.UseWolverine(opts =>
     string connectionString = builder.Configuration.GetConnectionString(ConnectionStringName)
         ?? throw new InvalidOperationException($"Connection string '{ConnectionStringName}' not found.");
 
-    opts.PersistMessagesWithPostgresql(connectionString, schemaName: "wolverine");
+    opts.PersistMessagesWithPostgresql(connectionString, schemaName: Schemas.Wolverine);
     opts.Durability.Mode = DurabilityMode.Solo;
 
     // Include both assemblies in a single configuration
