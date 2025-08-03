@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Users.ValueObjects;
+namespace Domain.ValueObjects;
 
 public class Address : ValueObject
 {
@@ -15,7 +15,7 @@ public class Address : ValueObject
     public string Street { get; private set; }
     public string Suburb { get; private set; }
     public string State { get; private set; }
-    public string Postcode { get; private set; }
+    public string PostalCode { get; private set; }
     public string Country { get; private set; }
     public string City { get; private set; }
     internal Address(string street, string suburb,
@@ -24,7 +24,7 @@ public class Address : ValueObject
         this.Street = street;
         this.Suburb = suburb;
         this.State = state;
-        this.Postcode = postcode;
+        this.PostalCode = postcode;
         this.Country = country;
         City = city;
     }
@@ -33,7 +33,7 @@ public class Address : ValueObject
         yield return Street;
         yield return Suburb;
         yield return State;
-        yield return Postcode;
+        yield return PostalCode;
         yield return Country;
         yield return City;
     }

@@ -3,6 +3,7 @@ using Application;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Database;
+using Infrastructure.Database.Seed;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using SharedKernel;
@@ -33,8 +34,10 @@ builder.Host.UseWolverine(opts =>
     opts.PersistMessagesWithPostgresql(connectionString, schemaName: Schemas.Wolverine);
     opts.Durability.Mode = DurabilityMode.Solo;
 
-    // Include both assemblies in a single configuration
-    opts.Discovery.IncludeAssembly(typeof(Application.DependencyInjection).Assembly);
+ 
+
+    // Fix for CS0305: Specify the generic type argument for ICommandHandler<TCommand>  
+    opts.Discovery.IncludeAssembly(typeof(ICommandHandler<>).Assembly);
     opts.Discovery.IncludeAssembly(typeof(Infrastructure.DependencyInjection).Assembly);
 
     opts.Policies.AddMiddleware(typeof(LoggingMiddleware<>));
@@ -67,6 +70,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithUi();
     app.ApplyMigrations<ApplicationDbContext>();
+    await DbSeeder.SeedOpenIddictClientsAsync(app.Services); // <-- Add this line
 }
 
 app.UseAuthentication();

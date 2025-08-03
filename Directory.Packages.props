@@ -11,6 +11,11 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7" />
+    <PackageVersion Include="OpenIddict.AspNetCore" Version="7.0.0" />
+    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.0.0" />
+    <PackageVersion Include="OpenIddict.Server" Version="7.0.0" />
+    <PackageVersion Include="OpenIddict.Server.AspNetCore" Version="7.0.0" />
+    <PackageVersion Include="OpenIddict.Validation.AspNetCore" Version="7.0.0" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.15.0.120848" />
     <!-- Application -->
     <PackageVersion Include="Scrutor" Version="6.1.0" />
