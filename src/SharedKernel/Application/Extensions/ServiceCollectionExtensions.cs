@@ -1,26 +1,30 @@
 ﻿namespace SharedKernel;
 
+
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSwaggerGenWithAuth(this IServiceCollection services)
     {
-        services.AddSwaggerGen(o =>
-        {
-            o.CustomSchemaIds(id => id.FullName!.Replace('+', '-'));
+        services.AddSwaggerGen(options => {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 
-            var securityScheme = new OpenApiSecurityScheme
-            {
-                Name = "JWT Authentication",
-                Description = "Enter your JWT token in this field",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = JwtBearerDefaults.AuthenticationScheme,
-                BearerFormat = "JWT"
-            };
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows {
+                    AuthorizationCode = new OpenApiOAuthFlow {
+                        AuthorizationUrl = new Uri("/connect/authorize", UriKind.Relative),
+                        TokenUrl = new Uri("/connect/token", UriKind.Relative),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "openid", "OpenID Connect scope" },
+                            { "profile", "User profile" },
+                            { "email", "User email" }
+                        }
+                    }
+                }
+            });
 
-            o.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityScheme);
-
-            var securityRequirement = new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
@@ -28,16 +32,18 @@ public static class ServiceCollectionExtensions
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = JwtBearerDefaults.AuthenticationScheme
+                            Id = "oauth2"
                         }
                     },
-                    []
+                 new List<string> { "openid", "profile", "email" }
                 }
-            };
-
-            o.AddSecurityRequirement(securityRequirement);
+            });
         });
 
         return services;
     }
 }
+
+
+
+

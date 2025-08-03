@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Abstractions;
+using OpenIddict.Validation.AspNetCore;
 using SharedKernel;
 
 namespace Infrastructure;
@@ -18,14 +20,15 @@ namespace Infrastructure;
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration) =>
-        services
-            .AddServices()
-            .AddDatabase(configuration)
-            .AddHealthChecks(configuration)
-            .AddAuthenticationInternal(configuration)
-            .AddAuthorizationInternal();
+       this IServiceCollection services,
+       IConfiguration configuration) =>
+       services
+           .AddServices()
+           .AddDatabase(configuration)
+           .AddHealthChecks(configuration)
+           //.AddAuthenticationInternal(configuration)
+           .AddAuthorizationInternal()
+           .AddOpenIddictInternal(); // Ensure AddOpenIddictInternal is invoked here
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
@@ -82,34 +85,35 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationInternal(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(o =>
-            {
-                o.RequireHttpsMetadata = false;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)),
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+    //private static IServiceCollection AddAuthenticationInternal(
+    //    this IServiceCollection services,
+    //    IConfiguration configuration)
+    //{
+    //    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    //        .AddJwtBearer(o =>
+    //        {
+    //            o.RequireHttpsMetadata = true;
 
-        services.AddHttpContextAccessor();
-        services.AddScoped<IUserContext, UserContext>();
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<ITokenProvider, TokenProvider>();
+    //            o.TokenValidationParameters = new TokenValidationParameters
+    //            {
+    //                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)),
+    //                ValidIssuer = configuration["Jwt:Issuer"],
+    //                ValidAudience = configuration["Jwt:Audience"],
+    //                ClockSkew = TimeSpan.Zero
+    //            };
+    //        });
 
-        return services;
-    }
+    //    services.AddHttpContextAccessor();
+    //    services.AddScoped<IUserContext, UserContext>();
+    //    services.AddSingleton<IPasswordHasher, PasswordHasher>();
+    //    services.AddSingleton<ITokenProvider, TokenProvider>();
+
+    //    return services;
+    //}
 
     private static IServiceCollection AddAuthorizationInternal(this IServiceCollection services)
     {
-        services.AddAuthorization();
+        services.AddAuthentication(options => options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
         services.AddScoped<PermissionProvider>();
 
@@ -119,4 +123,43 @@ public static class DependencyInjection
 
         return services;
     }
+
+    private static IServiceCollection AddOpenIddictInternal(this IServiceCollection services)
+    {
+        services.AddOpenIddict()
+            .AddCore(options => options.UseEntityFrameworkCore()
+                .UseDbContext<ApplicationDbContext>())
+            .AddServer(options =>
+            {
+                options.SetAuthorizationEndpointUris("/connect/authorize");
+                options.SetTokenEndpointUris("/connect/token");
+              
+
+                options.AllowAuthorizationCodeFlow();
+                options.AllowRefreshTokenFlow();
+
+                // Register the signing and encryption credentials
+                options.AddDevelopmentEncryptionCertificate()
+                       .AddDevelopmentSigningCertificate();
+
+                options.UseAspNetCore()
+                       .EnableAuthorizationEndpointPassthrough()
+                       .EnableTokenEndpointPassthrough();
+
+
+                // Register your scopes
+                options.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile);
+
+                // (Optional) Require PKCE for public clients
+                options.RequireProofKeyForCodeExchange();
+            })
+            .AddValidation(options =>
+            {
+                options.UseLocalServer();
+                options.UseAspNetCore();
+            });
+
+        return services;
+    }
+
 }

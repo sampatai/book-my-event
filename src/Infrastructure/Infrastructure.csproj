@@ -8,6 +8,10 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="OpenIddict.AspNetCore" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" />
+    <PackageReference Include="OpenIddict.Server" />
+    <PackageReference Include="OpenIddict.Server.AspNetCore" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,9 +24,8 @@
 
   <ItemGroup>
     <Folder Include="Database\Factory\" />
-    <Folder Include="Database\Migrations\" />
     <Folder Include="DomainEvents\" />
-    <Folder Include="Migrations\" />
+    <Folder Include="Database\Migrations\" />
   </ItemGroup>
 
 </Project>
