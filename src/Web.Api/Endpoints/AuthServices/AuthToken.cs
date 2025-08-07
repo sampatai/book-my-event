@@ -17,51 +17,40 @@ public class AuthToken : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-
-        app.MapPost("/connect/token", async (HttpContext context) => {
+        app.MapPost("/connect/token", async (HttpContext context) =>
+        {
             var request = context.GetOpenIddictServerRequest() ??
                 throw new InvalidOperationException("OpenIddict request cannot be retrieved.");
 
-            // Validate user credentials (replace with your logic)
             var userManager = context.RequestServices.GetRequiredService<UserManager<User>>();
+            var signInManager = context.RequestServices.GetRequiredService<SignInManager<User>>();
             var user = await userManager.FindByEmailAsync(request.Username ?? string.Empty);
             if (user == null || !await userManager.CheckPasswordAsync(user, request.Password ?? string.Empty))
                 return Results.BadRequest(new { error = "invalid_grant", error_description = "Invalid credentials." });
 
-            // Add tenant claim to support multi-tenancy
-            var identity = new ClaimsIdentity(
-                authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-                nameType: Claims.Name,
-                roleType: Claims.Role);
+            var principal = await signInManager.CreateUserPrincipalAsync(user);
 
-            identity.AddClaim(new Claim(Claims.Subject, user.Id.ToString(CultureInfo.InvariantCulture)));
-            identity.AddClaim(new Claim(Claims.Email, user.Email ?? string.Empty));
-
-            //Assume tenant id is a property on User, adjust as needed
+            // Add custom claims
             if (user.ServiceEntityId is not null)
             {
-                string tenantId = user.ServiceEntityId.Value.ToString(CultureInfo.InvariantCulture);
-                identity.AddClaim(new Claim("tenant_id", tenantId));
+                var identity = (ClaimsIdentity)principal.Identity!;
+                identity.AddClaim(new Claim("tenant_id", user.ServiceEntityId.Value.ToString(CultureInfo.InvariantCulture)));
             }
-
-            // Add scopes as claims if present
             if (request.Scope is not null)
             {
+                var identity = (ClaimsIdentity)principal.Identity!;
                 identity.AddClaim(new Claim("scope", request.Scope));
             }
 
-            var principal = new ClaimsPrincipal(identity);
-
-            // OpenIddict expects authentication properties, not just the scheme string
             return Results.SignIn(
                 principal,
                 properties: null,
                 authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-        }).WithTags(Tags.Auth);
-
+        });
 
         // Endpoint for OpenID Connect authorization requests
-        app.MapGet("/connect/authorize", (HttpContext context) => {
+        app.MapGet("/connect/authorize", (HttpContext context) =>
+        {
             var request = context.GetOpenIddictServerRequest()
                 ?? throw new InvalidOperationException("OpenIddict request cannot be retrieved.");
 
@@ -72,15 +61,8 @@ public class AuthToken : IEndpoint
                 return Results.Unauthorized();
             }
 
-            // Create a ClaimsPrincipal for the authenticated user
-            var claims = new List<Claim>
-                        {
-                            new(Claims.Subject, context.User.FindFirst(Claims.Subject)?.Value ?? ""),
-                            new(Claims.Email, context.User.FindFirst(Claims.Email)?.Value ?? "")
-                        };
-
-            var identity = new ClaimsIdentity(claims, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            // Use the existing authenticated principal with all claims
+            var principal = context.User;
 
             // Set requested scopes
             principal.SetScopes(request.GetScopes());
