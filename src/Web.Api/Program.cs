@@ -1,5 +1,6 @@
 using System.Reflection;
 using Application;
+using Application.Abstractions.Messaging;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Database;

@@ -18,7 +18,7 @@ public class Address : ValueObject
     public string PostalCode { get; private set; }
     public string Country { get; private set; }
     public string City { get; private set; }
-    internal Address(string street, string suburb,
+    public Address(string street, string suburb,
         string state, string postcode, string country, string city)
     {
         this.Street = street;
