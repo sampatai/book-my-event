@@ -46,7 +46,7 @@
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
     <PackageVersion Include="WolverineFx" Version="4.9.0" />
-    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="4.9.0" />
+    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="4.11.0" />
     <PackageVersion Include="WolverineFx.FluentValidation" Version="4.9.0" />
     <PackageVersion Include="WolverineFx.Postgresql" Version="4.9.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
