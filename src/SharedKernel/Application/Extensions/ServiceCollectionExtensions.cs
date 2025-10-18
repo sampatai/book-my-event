@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
                         // Use absolute URLs if Swagger UI is hosted separately; otherwise, relative is fine
-                        AuthorizationUrl = new Uri("/connect/authorize", UriKind.Relative),
+                        AuthorizationUrl = new Uri($"https://login.yahoo.com/"),
                         TokenUrl = new Uri("/connect/token", UriKind.Relative),
                         Scopes = new Dictionary<string, string>
                         {
