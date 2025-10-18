@@ -34,14 +34,20 @@ public class AuthToken : IEndpoint
             if (user.ServiceEntityId is not null)
             {
                 var identity = (ClaimsIdentity)principal.Identity!;
-                identity.AddClaim(new Claim("tenant_id", user.ServiceEntityId.Value.ToString(CultureInfo.InvariantCulture)));
+                if (request.Scope?.Contains("tenant_id") ?? false)
+                {
+                    identity.AddClaim(new Claim("tenant_id", user.ServiceEntityId.Value.ToString(CultureInfo.InvariantCulture)));
+                }
             }
             if (request.Scope is not null)
             {
                 var identity = (ClaimsIdentity)principal.Identity!;
                 identity.AddClaim(new Claim("scope", request.Scope));
             }
+            
+                
 
+            
             return Results.SignIn(
                 principal,
                 properties: null,

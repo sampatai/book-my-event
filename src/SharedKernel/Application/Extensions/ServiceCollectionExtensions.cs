@@ -1,6 +1,5 @@
 ﻿namespace SharedKernel;
 
-
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSwaggerGenWithAuth(this IServiceCollection services)
@@ -9,7 +8,7 @@ public static class ServiceCollectionExtensions
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 
-            // OAuth2/OpenID Connect configuration for Authorization Code flow (PKCE is handled by Swagger UI)
+            //OAuth2/OpenID Connect configuration for Authorization Code flow (PKCE is handled by Swagger UI)
             options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.OAuth2,

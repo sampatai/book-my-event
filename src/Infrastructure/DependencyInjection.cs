@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.AccessControl;
+using System.Text;
 using Application.Abstractions.Authentication;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
@@ -133,7 +134,7 @@ public static class DependencyInjection
             {
                 options.SetAuthorizationEndpointUris("/connect/authorize");
                 options.SetTokenEndpointUris("/connect/token");
-              
+
 
                 options.AllowAuthorizationCodeFlow();
                 options.AllowRefreshTokenFlow();
@@ -143,14 +144,21 @@ public static class DependencyInjection
                        .AddDevelopmentSigningCertificate();
 
                 options.UseAspNetCore()
+                //With passthrough, OpenIddict sends the request to  controller or middleware.
+                //we can customize login/ consent, add checks, or redirect users anywhere.
                        .EnableAuthorizationEndpointPassthrough()
                        .EnableTokenEndpointPassthrough();
 
 
                 // Register your scopes
-                options.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile);
+                //tell OpenIddict what info/permissions clients are allowed to request.
+                options.RegisterScopes(OpenIddictConstants.Scopes.OpenId,
+                    OpenIddictConstants.Scopes.Email,
+                    OpenIddictConstants.Scopes.Profile,
+                    "role",
+                    "tenant_id");
 
-                // (Optional) Require PKCE for public clients
+                // (Optional) Enforces PKCE. Required for public clients (mobile apps, SPAs).
                 options.RequireProofKeyForCodeExchange();
             })
             .AddValidation(options =>
