@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SharedKernel;
-using Wolverine;
 namespace Auth.Infrastructure.Data
 {
     public class AuthenticationDbContext :  IdentityDbContext<User, IdentityRole<long>, long>, IUnitOfWork

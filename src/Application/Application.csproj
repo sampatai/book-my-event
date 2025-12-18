@@ -70,7 +70,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Scrutor" />
-    <PackageReference Include="WolverineFx" />
   </ItemGroup>
 
   <ItemGroup>

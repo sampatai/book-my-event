@@ -14,37 +14,14 @@ using SharedKernel;
 using SharedKernel.Model;
 using Web.Api;
 using Web.Api.Extensions;
-using Wolverine;
-using Wolverine.EntityFrameworkCore;
-using Wolverine.FluentValidation;
-using Wolverine.Postgresql;
 
-const string ConnectionStringName = "DefaultConnection";
+
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
 builder.Host.UseSerilog((context, loggerConfig) =>
     loggerConfig.ReadFrom.Configuration(context.Configuration));
-
-// Keep and modify the UseWolverine configuration
-builder.Host.UseWolverine(opts =>
-{
-    opts.UseFluentValidation();
-    opts.UseEntityFrameworkCoreTransactions();
-
-    string connectionString = builder.Configuration.GetConnectionString(ConnectionStringName)
-        ?? throw new InvalidOperationException($"Connection string '{ConnectionStringName}' not found.");
-
-    opts.PersistMessagesWithPostgresql(connectionString, schemaName: Schemas.Wolverine);
-    opts.Durability.Mode = DurabilityMode.Solo;
-
-    // Discover handlers and middleware from other assemblies
-    opts.Discovery.IncludeAssembly(typeof(ICommandHandler<>).Assembly);
-    opts.Discovery.IncludeAssembly(typeof(Infrastructure.DependencyInjection).Assembly);
-
-    opts.Policies.AddMiddleware(typeof(LoggingMiddleware<>));
-});
 
 // This extension method will now contain the full OpenAPI/Swagger configuration.
 builder.Services.AddSwaggerGenWithAuth(builder.Configuration);

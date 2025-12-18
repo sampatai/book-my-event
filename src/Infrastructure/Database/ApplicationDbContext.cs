@@ -1,7 +1,6 @@
 ﻿using Domain.ServiceEntity.Root;
 using OpenIddict.EntityFrameworkCore.Models;
-using Wolverine;
-using Wolverine.Runtime;
+
 
 namespace Infrastructure.Database;
 
@@ -9,14 +8,13 @@ public sealed class ApplicationDbContext
 
     : IdentityDbContext<User, IdentityRole<long>, long>, IUnitOfWork
 {
-    private readonly IMessageBus _messageBus;
+    
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-    IMessageBus messageBus) : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
+    ) : base(options)
     {
         //_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         //_currentUserHelper = currentUserHelper ?? throw new ArgumentNullException(nameof(currentUserHelper));
-        _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
         System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
 
     }
@@ -80,7 +78,7 @@ public sealed class ApplicationDbContext
             })
             .ToList();
 
-        foreach (IDomainEvent? domainEvent in domainEvents)
-            await _messageBus.PublishAsync(domainEvent);
+        //foreach (IDomainEvent? domainEvent in domainEvents)
+        //    await _messageBus.PublishAsync(domainEvent);
     }
 }

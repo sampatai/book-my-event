@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using JasperFx.Core.IoC;
+
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 

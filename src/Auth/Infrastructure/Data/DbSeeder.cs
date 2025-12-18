@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
+using SharedKernel.Model;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Auth.Infrastructure.Database.Seed
@@ -27,8 +28,8 @@ namespace Auth.Infrastructure.Database.Seed
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<long>>>();
             var _configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            var reactClientUrl = _configuration.GetSection("react-client")!.ToString();
-            var webapiUrl = _configuration.GetSection("web-api")!.ToString();
+            var servicesOptions = new ServicesOptions();
+            _configuration.GetSection("Services").Bind(servicesOptions);
             string webApiScope = Permissions.Prefixes.Scope + "web-api";
 
             var clientId = "web-api";
@@ -39,7 +40,7 @@ namespace Auth.Infrastructure.Database.Seed
                 await manager.CreateAsync(new OpenIddictApplicationDescriptor {
                     ClientId = clientId,
                     DisplayName = "Swagger UI - Web API",
-                    RedirectUris = { new Uri($"{webapiUrl}swagger/oauth2-redirect.html") },
+                    RedirectUris = { new Uri($"{servicesOptions.WebApi.BaseUrl}/swagger/oauth2-redirect.html") },
                     Permissions =
                     {
                         OpenIddictConstants.Permissions.Endpoints.Authorization,
@@ -53,7 +54,7 @@ namespace Auth.Infrastructure.Database.Seed
                     },
                     PostLogoutRedirectUris =
                 {
-                    new Uri($"{webapiUrl}signout-callback-oidc")
+                    new Uri($"{servicesOptions.WebApi.BaseUrl}/signout-callback-oidc")
                 },
                 }, cancellationToken);
             }
@@ -66,11 +67,11 @@ namespace Auth.Infrastructure.Database.Seed
                     DisplayName = "React client",
                     RedirectUris =
                     {
-                    new Uri($"{reactClientUrl}signin-oidc")
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/signin-oidc")
                 },
                     PostLogoutRedirectUris =
                     {
-                    new Uri($"{reactClientUrl}signout-callback-oidc")
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/signout-callback-oidc")
                 },
                     Permissions =
                     {

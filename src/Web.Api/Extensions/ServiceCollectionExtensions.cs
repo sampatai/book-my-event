@@ -1,8 +1,9 @@
 ﻿using System.Configuration;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 using SharedKernel.Model;
 
-namespace SharedKernel;
+namespace Web.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -16,7 +17,7 @@ public static class ServiceCollectionExtensions
            configuration.GetSection("Services").Bind(servicesOptions);
             var issuer = servicesOptions.Auth.BaseUrl;
            //OAuth2/OpenID Connect configuration for Authorization Code flow (PKCE is handled by Swagger UI)
-           options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+           options.AddSecurityDefinition("web-api", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.OAuth2,
                 Flows = new OpenApiOAuthFlows
@@ -38,7 +39,7 @@ public static class ServiceCollectionExtensions
 
             });
 
-            // Require the defined OAuth2 scheme for all endpoints
+            // Require the defined web-api scheme for all endpoints
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
@@ -47,7 +48,7 @@ public static class ServiceCollectionExtensions
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "oauth2"
+                            Id = "web-api"
                         }
                     },
                     new List<string> { "openid", "profile", "email", "web-api" }
@@ -67,6 +68,7 @@ public static class ServiceCollectionExtensions
 
             options.OAuthScopes("web-api");
             options.OAuthClientId("web-api");
+            options.OAuthUsePkce();
         });
     }
 }

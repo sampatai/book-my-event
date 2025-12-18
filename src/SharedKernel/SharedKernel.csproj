@@ -10,10 +10,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
-    <PackageReference Include="WolverineFx" />
-    <PackageReference Include="WolverineFx.EntityFrameworkCore" />
-    <PackageReference Include="WolverineFx.FluentValidation" />
-    <PackageReference Include="WolverineFx.Postgresql" />
 
 	  <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
     

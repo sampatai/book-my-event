@@ -8,13 +8,18 @@ using OpenIddict.Server;
 using Quartz;
 using SharedKernel.Model;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using Microsoft.AspNetCore.Identity;
+using Auth.Domain.Users.Root;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Enable PII logging for debugging purposes (disable in production)
 IdentityModelEventSource.ShowPII = true;
 
 builder.Services.AddAuthInfrastructure(builder.Configuration);
+
 //// Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -52,7 +57,7 @@ builder.Services.AddOpenIddict()
                        .SetEndUserVerificationEndpointUris("connect/verify");
 
                 // Mark the "email", "profile" and "roles" scopes as supported scopes.
-                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
+                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles, "web-api");
 
                 // Note: the sample uses the code and refresh token flows but you can enable
                 // the other flows if you need to support implicit, password or client credentials.
@@ -105,7 +110,12 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
     await DbSeeder.SeedOpenIddictClientsAsync(app.Services, CancellationToken.None);
+
 }
 
 app.UseHttpsRedirection();
@@ -117,7 +127,7 @@ app.UseAuthorization();
 
 app.UseStaticFiles();
 app.MapControllers();
-//app.MapRazorPages(); // <--- ADD THIS LINE HERE
+app.MapRazorPages(); // <--- ADD THIS LINE HERE
 app.MapDefaultControllerRoute();
 
 
