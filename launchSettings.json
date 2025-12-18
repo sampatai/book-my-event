@@ -8,9 +8,9 @@
       "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
       "serviceActions": {
         "pgadmin": "StartWithoutDebugging",
-        "postgres-api": "StartWithoutDebugging",
-        "seq": "StartWithoutDebugging",
-        "web-api": "StartDebugging"
+        "web-api": "StartDebugging",
+        "auth-server": "StartWithoutDebugging"
+
       }
     }
   }

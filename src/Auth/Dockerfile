@@ -14,10 +14,11 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
-COPY ["src/AuthService/Auth/Auth.csproj", "src/AuthService/Auth/"]
-RUN dotnet restore "./src/AuthService/Auth/Auth.csproj"
+COPY ["src/Auth/Auth.csproj", "src/Auth/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
+RUN dotnet restore "./src/Auth/Auth.csproj"
 COPY . .
-WORKDIR "/src/src/AuthService/Auth"
+WORKDIR "/src/src/Auth"
 RUN dotnet build "./Auth.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
@@ -29,4 +30,5 @@ RUN dotnet publish "./Auth.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:Us
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY src/Auth/wwwroot ./wwwroot 
 ENTRYPOINT ["dotnet", "Auth.dll"]

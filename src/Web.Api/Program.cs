@@ -78,8 +78,8 @@ if (app.Environment.IsDevelopment())
         c.OAuthUsePkce();
     });
 
-    app.ApplyMigrations<ApplicationDbContext>();
-    await DbSeeder.SeedOpenIddictClientsAsync(app.Services);
+    //app.ApplyMigrations<ApplicationDbContext>();
+    //await DbSeeder.SeedOpenIddictClientsAsync(app.Services);
 }
 
 app.UseAuthentication();
