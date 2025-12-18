@@ -4,90 +4,42 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.ServiceEntity.Root;
-using Domain.ValueObjects;
+using Auth.Domain.TenantEntity.Root;
+using Auth.Domain.Users.Root;
+using Auth.Domain.ValueObjects;
+using Auth.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Infrastructure.Database.Seed
+namespace Auth.Infrastructure.Database.Seed
 {
     public static class DbSeeder
     {
-        public static async Task SeedOpenIddictClientsAsync(IServiceProvider serviceProvider)
+        public static async Task SeedOpenIddictClientsAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
             using var scope = serviceProvider.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
             var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
-            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<long>>>();
+            var _configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var reactClientUrl = _configuration.GetSection("react-client")!.ToString();
+            var webapiUrl = _configuration.GetSection("web-api")!.ToString();
+            string webApiScope = Permissions.Prefixes.Scope + "web-api";
 
-            // Web App Client
-            var webAppRedirectUri = configuration.GetValue<string>("OpenIddict:WebAppRedirectUri");
-            if (await manager.FindByClientIdAsync("web-app-client") is null)
-            {
-                await manager.CreateAsync(new OpenIddictApplicationDescriptor {
-                    ClientId = "web-app-client",
-                    DisplayName = "Web Application",
-                    RedirectUris = { new Uri(webAppRedirectUri!) },
-                    Permissions =
-                    {
-                        OpenIddictConstants.Permissions.Endpoints.Authorization,
-                        OpenIddictConstants.Permissions.Endpoints.Token,
-                        OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
-                        OpenIddictConstants.Permissions.ResponseTypes.Code,
-
-                         OpenIddictConstants.Permissions.Scopes.Profile,
-                         OpenIddictConstants.Permissions.Scopes.Email,
-
-
-                    },
-                    Requirements =
-                    {
-                        OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange // PKCE required
-                    }
-                });
-            }
-
-            // Mobile App Client (using custom URI scheme)
-            var mobileRedirectUri = configuration.GetValue<string>("OpenIddict:MobileRedirectUri");
-            if (await manager.FindByClientIdAsync("mobile-app-client") is null)
-            {
-                await manager.CreateAsync(new OpenIddictApplicationDescriptor {
-                    ClientId = "mobile-app-client",
-                    DisplayName = "Mobile Application",
-                    RedirectUris = { new Uri(mobileRedirectUri!) }, // e.g., myapp://callback
-                    Permissions =
-                    {
-                        OpenIddictConstants.Permissions.Endpoints.Authorization,
-                        OpenIddictConstants.Permissions.Endpoints.Token,
-                        OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
-                        OpenIddictConstants.Permissions.ResponseTypes.Code,
-                        OpenIddictConstants.Permissions.Scopes.Profile,
-                         OpenIddictConstants.Permissions.Scopes.Email,
-
-
-                    },
-                    Requirements =
-                    {
-                        OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange // PKCE required
-                    }
-                });
-            }
-
-
+            var clientId = "web-api";
 
             // Web API Client (if acting as a client to another API)
-            var apiRedirectUri = configuration.GetValue<string>("OpenIddict:ApiRedirectUri");
-            if (!string.IsNullOrEmpty(apiRedirectUri) && await manager.FindByClientIdAsync("swagger-ui") is null)
+            if (await manager.FindByClientIdAsync(clientId, cancellationToken) is null)
             {
                 await manager.CreateAsync(new OpenIddictApplicationDescriptor {
-                    ClientId = "swagger-ui",
-                    DisplayName = "Web API Client",
-                    RedirectUris = { new Uri(apiRedirectUri!) },
+                    ClientId = clientId,
+                    DisplayName = "Swagger UI - Web API",
+                    RedirectUris = { new Uri($"{webapiUrl}swagger/oauth2-redirect.html") },
                     Permissions =
                     {
                         OpenIddictConstants.Permissions.Endpoints.Authorization,
@@ -97,16 +49,47 @@ namespace Infrastructure.Database.Seed
                         OpenIddictConstants.Permissions.ResponseTypes.Code,
                         OpenIddictConstants.Permissions.Scopes.Profile,
                          OpenIddictConstants.Permissions.Scopes.Email,
-
+                         webApiScope
                     },
-                    Requirements =
+                    PostLogoutRedirectUris =
+                {
+                    new Uri($"{webapiUrl}signout-callback-oidc")
+                },
+                }, cancellationToken);
+            }
+
+            clientId = "react-client";
+            if (await manager.FindByClientIdAsync(clientId, cancellationToken) == null)
+            {
+                await manager.CreateAsync(new OpenIddictApplicationDescriptor {
+                    ClientId = clientId,
+                    DisplayName = "React client",
+                    RedirectUris =
                     {
-                        OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange // PKCE required
-                    }
-                });
+                    new Uri($"{reactClientUrl}signin-oidc")
+                },
+                    PostLogoutRedirectUris =
+                    {
+                    new Uri($"{reactClientUrl}signout-callback-oidc")
+                },
+                    Permissions =
+                    {
+                    Permissions.Endpoints.Authorization,
+                    Permissions.Endpoints.Token,
+                    Permissions.GrantTypes.AuthorizationCode,
+                    Permissions.GrantTypes.RefreshToken,
+                    Permissions.ResponseTypes.Code,
+                    Scopes.OpenId,
+                    Scopes.OfflineAccess,
+                    Permissions.Scopes.Email,
+                    Permissions.Scopes.Profile,
+                    Permissions.Scopes.Roles,
+                    webApiScope
+                }
+                }, cancellationToken);
             }
             // Seed ServiceEntity
-            if (!await db.ServiceEntities.AnyAsync())
+            if (!await db.TenantEntities.AnyAsync(cancellationToken: cancellationToken))
             {
                 // Example Address creation (adjust as needed)
                 var address = new Address(
@@ -119,7 +102,7 @@ namespace Infrastructure.Database.Seed
                 );
 
                 // Example ServiceEntity creation
-                var serviceEntity = new ServiceEntity(
+                var serviceEntity = new TenantEntity(
                     name: "My Service",
                     description: "A description of the service.",
                     startDate: DateOnly.FromDateTime(DateTime.UtcNow),
@@ -128,9 +111,10 @@ namespace Infrastructure.Database.Seed
                     contactEmail: "contact@example.com",
                     phoneNumber: "+1234567890",
                     website: "https://example.com",
-                    address: address
+                    address: address,
+                    Guid.NewGuid()
                 );
-                db.ServiceEntities.Add(serviceEntity);
+                db.TenantEntities.Add(serviceEntity);
                 await db.SaveEntitiesAsync(cancellationToken: default);
 
                 // Seed User linked to ServiceEntity

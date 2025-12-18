@@ -20,7 +20,7 @@ namespace Auth
         {
             string? connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<ApplicationDbContext>(
+            services.AddDbContext<AuthenticationDbContext>(
                 options =>
                 {
                     options
@@ -46,10 +46,11 @@ namespace Auth
             })
             .AddRoles<IdentityRole<long>>() // Use IdentityRole<long>
             .AddRoleManager<RoleManager<IdentityRole<long>>>() // Use RoleManager with long as the key type
-            .AddEntityFrameworkStores<ApplicationDbContext>() // Provide our context
+            .AddEntityFrameworkStores<AuthenticationDbContext>() // Provide our context
             .AddSignInManager<SignInManager<User>>() // Use SignInManager
             .AddUserManager<UserManager<User>>() // Use UserManager to create users
-            .AddDefaultTokenProviders(); // Enable token providers for email confirmation
+            .AddDefaultTokenProviders();
+            //.AddDefaultUI();// Enable token providers for email confirmation
             return services;
         }
     }

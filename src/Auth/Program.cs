@@ -1,10 +1,12 @@
 using Auth;
 using Auth.Infrastructure.Data;
+using Auth.Infrastructure.Database.Seed;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Logging;
-using Quartz;
-using OpenIddict.Server;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Logging;
+using OpenIddict.Server;
+using Quartz;
+using SharedKernel.Model;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 IdentityModelEventSource.ShowPII = true;
 
 builder.Services.AddAuthInfrastructure(builder.Configuration);
-// Add services to the container.
+//// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 // OpenIddict offers native integration with Quartz.NET to perform scheduled tasks
@@ -32,62 +34,62 @@ builder.Services.AddOpenIddict()
         // Configure OpenIddict to use the Entity Framework Core stores and models.
         // Note: call ReplaceDefaultEntities() to replace the default OpenIddict entities.
         options.UseEntityFrameworkCore()
-            .UseDbContext<ApplicationDbContext>();
+            .UseDbContext<AuthenticationDbContext>();
 
         // Enable Quartz.NET integration.
         options.UseQuartz();
     })
+            // Register the OpenIddict server components.
+            .AddServer(options =>
+            {
+                // Enable the authorization, logout, token and userinfo endpoints.
+                // Enable the authorization, logout, token and userinfo endpoints.
+                options.SetAuthorizationEndpointUris("connect/authorize")
+                       .SetEndSessionEndpointUris("connect/logout")
+                       .SetIntrospectionEndpointUris("connect/introspect")
+                       .SetTokenEndpointUris("connect/token")
+                       .SetUserInfoEndpointUris("connect/userinfo")
+                       .SetEndUserVerificationEndpointUris("connect/verify");
 
-    // Register the OpenIddict server components.
-    .AddServer(options =>
-    {
-        // Enable the authorization, logout, token and userinfo endpoints.
-        options
-            .SetAuthorizationEndpointUris("connect/authorize")
-            .SetTokenEndpointUris("connect/token");
+                // Mark the "email", "profile" and "roles" scopes as supported scopes.
+                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
 
+                // Note: the sample uses the code and refresh token flows but you can enable
+                // the other flows if you need to support implicit, password or client credentials.
+                options.AllowAuthorizationCodeFlow()
+                       .AllowRefreshTokenFlow();
 
-        // Mark the "email", "profile" and "roles" scopes as supported scopes.
-        options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
+                // Register the signing and encryption credentials.
+                options.AddDevelopmentEncryptionCertificate()
+                       .AddDevelopmentSigningCertificate();
 
-        // Disable access token encryption, as it is not used in Identity Server sample
-        options.DisableAccessTokenEncryption();
+                // Register the ASP.NET Core host and configure the ASP.NET Core-specific options.
+                options.UseAspNetCore()
+                       .EnableAuthorizationEndpointPassthrough()
+                       .EnableEndSessionEndpointPassthrough()
+                       .EnableTokenEndpointPassthrough()
+                       .EnableUserInfoEndpointPassthrough()
+                       .EnableStatusCodePagesIntegration();
+            })
 
-        // Enable necessary flows
-        options.AllowClientCredentialsFlow();
-        options.AllowAuthorizationCodeFlow();
-        options.AllowRefreshTokenFlow();
+            // Register the OpenIddict validation components.
+            .AddValidation(options =>
+            {
+                // Import the configuration from the local OpenIddict server instance.
+                options.UseLocalServer();
 
-        // Register the signing and encryption credentials.
-        // TODO: Use proper certificates for non-development environment
-        options.AddDevelopmentEncryptionCertificate()
-            .AddDevelopmentSigningCertificate();
-
-        // Register the ASP.NET Core host and configure the ASP.NET Core-specific options.
-        options.UseAspNetCore()
-            .EnableAuthorizationEndpointPassthrough()
-            .EnableTokenEndpointPassthrough()
-            .EnableStatusCodePagesIntegration();
-    })
-
-    // Register the OpenIddict validation components.
-    .AddValidation(options =>
-    {
-        // Import the configuration from the local OpenIddict server instance.
-        options.UseLocalServer();
-
-        // Register the ASP.NET Core host.
-        options.UseAspNetCore();
-    });
+                // Register the ASP.NET Core host.
+                options.UseAspNetCore();
+            });
 
 // CORS policy to allow SwaggerUI and React clients
 builder.Services.AddCors(options => options.AddPolicy("default", policy =>
     {
-        var webApi = builder.Configuration["Services:web-api"];
-        var reactClient = builder.Configuration["Services:react-client"];
+        var servicesOptions = new ServicesOptions();
+        builder.Configuration.GetSection("Services").Bind(servicesOptions);
         policy.WithOrigins(
-                webApi ?? string.Empty,
-                reactClient ?? string.Empty)
+                servicesOptions.WebApi.BaseUrl,
+                servicesOptions.ReactClient.BaseUrl)
             .AllowAnyHeader()
             .AllowAnyMethod();
     }));
@@ -103,6 +105,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    await DbSeeder.SeedOpenIddictClientsAsync(app.Services, CancellationToken.None);
 }
 
 app.UseHttpsRedirection();
@@ -114,11 +117,8 @@ app.UseAuthorization();
 
 app.UseStaticFiles();
 app.MapControllers();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+//app.MapRazorPages(); // <--- ADD THIS LINE HERE
+app.MapDefaultControllerRoute();
 
 
 
