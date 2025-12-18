@@ -1,5 +1,6 @@
 using System.Reflection;
 using Application;
+using Application.Abstractions.Messaging;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Database;
@@ -34,16 +35,14 @@ builder.Host.UseWolverine(opts =>
     opts.PersistMessagesWithPostgresql(connectionString, schemaName: Schemas.Wolverine);
     opts.Durability.Mode = DurabilityMode.Solo;
 
- 
-
-    // Fix for CS0305: Specify the generic type argument for ICommandHandler<TCommand>  
+    // Discover handlers and middleware from other assemblies
     opts.Discovery.IncludeAssembly(typeof(ICommandHandler<>).Assembly);
     opts.Discovery.IncludeAssembly(typeof(Infrastructure.DependencyInjection).Assembly);
 
     opts.Policies.AddMiddleware(typeof(LoggingMiddleware<>));
 });
 
-
+// This extension method will now contain the full OpenAPI/Swagger configuration.
 builder.Services.AddSwaggerGenWithAuth();
 
 builder.Services
@@ -57,8 +56,7 @@ WebApplication app = builder.Build();
 
 app.MapEndpoints();
 
-app.MapHealthChecks("health", new HealthCheckOptions
-{
+app.MapHealthChecks("health", new HealthCheckOptions {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
@@ -66,11 +64,22 @@ app.UseRequestContextLogging();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 
+// It's best practice to only expose Swagger in the development environment for security.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwaggerWithUi();
-    app.ApplyMigrations<ApplicationDbContext>();
-    await DbSeeder.SeedOpenIddictClientsAsync(app.Services); // <-- Add this line
+    app.UseSwagger(); // Add this line to generate the swagger.json file
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+
+        // When using OpenIddict/OAuth2, you can configure the UI for a seamless login.
+        c.OAuthClientId("swagger-ui");
+        c.OAuthAppName("Swagger UI");
+        c.OAuthUsePkce();
+    });
+
+    //app.ApplyMigrations<ApplicationDbContext>();
+    //await DbSeeder.SeedOpenIddictClientsAsync(app.Services);
 }
 
 app.UseAuthentication();
@@ -81,5 +90,6 @@ await app.RunAsync();
 
 namespace Web.Api
 {
+    // Make the auto-generated Program class public so it can be referenced by test projects.
     public partial class Program { }
 }

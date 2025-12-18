@@ -1,4 +1,5 @@
-﻿using OpenIddict.EntityFrameworkCore.Models;
+﻿using Domain.ServiceEntity.Root;
+using OpenIddict.EntityFrameworkCore.Models;
 using Wolverine;
 using Wolverine.Runtime;
 
@@ -24,6 +25,7 @@ public sealed class ApplicationDbContext
     public DbSet<OpenIddictEntityFrameworkCoreAuthorization> OpenIddictAuthorizations => Set<OpenIddictEntityFrameworkCoreAuthorization>();
     public DbSet<OpenIddictEntityFrameworkCoreScope> OpenIddictScopes => Set<OpenIddictEntityFrameworkCoreScope>();
     public DbSet<OpenIddictEntityFrameworkCoreToken> OpenIddictTokens => Set<OpenIddictEntityFrameworkCoreToken>();
+    public DbSet<ServiceEntity> ServiceEntities => Set<ServiceEntity>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

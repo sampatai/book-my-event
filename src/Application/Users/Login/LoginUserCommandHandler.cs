@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Messaging;
 using Domain.Users;
 using Domain.Users.Root;
 using Microsoft.EntityFrameworkCore;

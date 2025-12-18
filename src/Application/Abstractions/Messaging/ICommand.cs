@@ -1,4 +1,4 @@
-﻿namespace SharedKernel;
+﻿namespace Application.Abstractions.Messaging;
 
 // Marker for Commands
 public interface ICommand { }
