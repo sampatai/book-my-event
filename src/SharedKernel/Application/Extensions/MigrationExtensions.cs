@@ -8,6 +8,6 @@ public static class MigrationExtensions
     {
         using IServiceScope scope = app.ApplicationServices.CreateScope();
         TDbContext dbContext = scope.ServiceProvider.GetRequiredService<TDbContext>();
-        dbContext.Database.Migrate();
+        //dbContext.Database.Migrate();
     }
 }

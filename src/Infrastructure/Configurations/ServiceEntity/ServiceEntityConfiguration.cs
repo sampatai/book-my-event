@@ -1,4 +1,5 @@
 ﻿using Domain.ServiceEntity.Root;
+using Humanizer;
 
 namespace Infrastructure.Configurations
 {

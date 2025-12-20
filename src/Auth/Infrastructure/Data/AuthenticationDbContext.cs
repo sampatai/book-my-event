@@ -6,14 +6,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SharedKernel;
-using Wolverine;
 namespace Auth.Infrastructure.Data
 {
-    public class ApplicationDbContext :  IdentityDbContext<User, IdentityRole<long>, long>, IUnitOfWork
+    public class AuthenticationDbContext :  IdentityDbContext<User, IdentityRole<long>, long>, IUnitOfWork
     {
        
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
             : base(options)
         {
             System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->");
@@ -24,9 +23,10 @@ namespace Auth.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
+            // This line is missing! It adds the OpenIddict tables to EF Core
+            builder.UseOpenIddict();
             // Apply all configurations in the assembly
-            builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            builder.ApplyConfigurationsFromAssembly(typeof(AuthenticationDbContext).Assembly);
 
             // Set the default schema (if needed)
             builder.HasDefaultSchema(Schemas.Default);

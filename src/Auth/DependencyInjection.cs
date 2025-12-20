@@ -20,7 +20,7 @@ namespace Auth
         {
             string? connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<ApplicationDbContext>(
+            services.AddDbContext<AuthenticationDbContext>(
                 options =>
                 {
                     options
@@ -37,19 +37,18 @@ namespace Auth
                 // Password configuration
                 options.Password.RequiredLength = 8;
                 options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = true;
-
-                // For email confirmation
-                options.SignIn.RequireConfirmedEmail = true;
             })
             .AddRoles<IdentityRole<long>>() // Use IdentityRole<long>
             .AddRoleManager<RoleManager<IdentityRole<long>>>() // Use RoleManager with long as the key type
-            .AddEntityFrameworkStores<ApplicationDbContext>() // Provide our context
+            .AddEntityFrameworkStores<AuthenticationDbContext>() // Provide our context
             .AddSignInManager<SignInManager<User>>() // Use SignInManager
             .AddUserManager<UserManager<User>>() // Use UserManager to create users
-            .AddDefaultTokenProviders(); // Enable token providers for email confirmation
+            .AddDefaultTokenProviders()
+            .AddDefaultUI();// Enable token providers for email confirmation
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AuthenticationDbContext>();
+
+
             return services;
         }
     }
