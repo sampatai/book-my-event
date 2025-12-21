@@ -37,19 +37,6 @@ If you're ready to learn more, check out [**Pragmatic Clean Architecture**](http
 
 Minimal but production-ready relational schema for Hindu pandit booking + tithi event platform. Designed for SQL Server/PostgreSQL with EF Core.
 
-## Users and Roles
-
-### Users
-
-| Column         | Type             | Constraints     | Description                  |
-| -------------- | ---------------- | --------------- | ---------------------------- |
-| `Id`           | `Guid`           | PK              | Unique identifier            |
-| `Email`        | `string(256)`    | Unique, Indexed | User email                   |
-| `PasswordHash` | `string(256)`    | NotNull         | BCrypt/Argon2 hash           |
-| `Phone`        | `string(20)`     | Nullable        | Contact phone                |
-| `Role`         | `string(50)`     | NotNull         | "Devotee", "Pandit", "Admin" |
-| `CreatedAt`    | `DateTimeOffset` | NotNull         | Account creation             |
-| `IsActive`     | `bool`           | Default(true)   | Account status               |
 
 ### DevoteeProfiles
 
