@@ -13,7 +13,7 @@ public class Address : ValueObject
 
     }
     public string? Street { get; private set; }
-    
+
     public string State { get; private set; }
     public string PostalCode { get; private set; }
     public string Country { get; private set; }
@@ -24,10 +24,15 @@ public class Address : ValueObject
     public string Timezone { get; private set; }
     public Address(string? street,
         string state, string postcode, string country, string city,
-        string line1, string ?line2, string timeZone)
+        string line1, string? line2, string timeZone)
     {
+        Guard.Against.NullOrWhiteSpace(state, nameof(state));
+        Guard.Against.NullOrWhiteSpace(postcode, nameof(postcode));
+        Guard.Against.NullOrWhiteSpace(country, nameof(country));
+        Guard.Against.NullOrWhiteSpace(city, nameof(city));
+        Guard.Against.NullOrWhiteSpace(line1, nameof(line1));
+        Guard.Against.NullOrWhiteSpace(timeZone, nameof(timeZone));
         this.Street = street;
-       
         this.State = state;
         this.PostalCode = postcode;
         this.Country = country;
@@ -43,12 +48,13 @@ public class Address : ValueObject
     }
     protected void SetTimeZone(string timeZone)
     {
+        Guard.Against.NullOrWhiteSpace(timeZone, nameof(timeZone));
         this.Timezone = timeZone;
     }
     protected override IEnumerable<object?> GetEqualityComponents()
     {
         yield return Street;
-      
+
         yield return State;
         yield return PostalCode;
         yield return Country;

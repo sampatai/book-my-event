@@ -9,8 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Devotee\Entities\" />
-    <Folder Include="Pandit\Root\" />
+    <Folder Include="Common\Root\" />
     <Folder Include="Users\ValueObjects\" />
   </ItemGroup>
 
