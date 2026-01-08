@@ -1,4 +1,4 @@
-using System.Configuration;
+﻿using System.Configuration;
 using System.Reflection;
 using System.Security.Claims;
 using Application;
@@ -9,6 +9,8 @@ using Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Validation;
+using OpenIddict.Validation.AspNetCore;
 using Serilog;
 using SharedKernel;
 using SharedKernel.Model;
@@ -29,61 +31,34 @@ builder.Services
     .AddApplication()
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+builder.Services.AddOpenIddict()
+    .AddValidation(options =>
     {
         var servicesOptions = new ServicesOptions();
         builder.Configuration.GetSection("Services").Bind(servicesOptions);
-        options.Authority = servicesOptions.Auth.BaseUrl;
-        options.MapInboundClaims = true;
 
-        options.BackchannelHttpHandler = new HttpClientHandler();
-        // To debug various token validation issues, use events
-        options.Events = new JwtBearerEvents {
-            // OnAuthenticationFailed = context =>
-            // {
-            //     var error = context.Exception;
-            //     return Task.CompletedTask;
-            // },
-            // OnForbidden = context =>
-            // {
-            //     var request = context.Request;
-            //     return Task.CompletedTask;
-            // },
-            OnTokenValidated = async (context) =>
-            {
-                // OpenIddict sends scope as one claim with space separated values
-                // ASP.NET Core validation expects scope claim to be an array of values
-                // Split the scope claim to an array to make it pass validation
-                // This is only an issue when multiple scopes are used
-                // https://stackoverflow.com/questions/54852094/asp-net-core-requireclaim-scope-with-multiple-scopes
-                if (context.Principal?.Identity is ClaimsIdentity claimsIdentity)
-                {
-                    var scopeClaims = claimsIdentity.FindFirst("scope");
-                    if (scopeClaims is not null)
-                    {
-                        claimsIdentity.RemoveClaim(scopeClaims);
-                        claimsIdentity.AddClaims(scopeClaims.Value.Split(' ').Select(scope => new Claim("scope", scope)));
-                    }
-                }
-                await Task.CompletedTask;
-            }
-        };
+        // Authority (OpenIddict Server URL)
+        options.SetIssuer(servicesOptions.Auth.BaseUrl);
 
-        options.TokenValidationParameters = new TokenValidationParameters {
-            ValidateAudience = true,
-            ValidAudience = servicesOptions.Auth.BaseUrl, // or the expected audience
-            ValidateIssuer = true,
-            ValidIssuer = servicesOptions.WebApi.BaseUrl,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-        };
+        // Audience validation
+        options.AddAudiences(servicesOptions.WebApi.BaseUrl);
+
+        // Use HTTP backchannel
+        options.UseSystemNetHttp();
+
+        // Register ASP.NET Core integration
+        options.UseAspNetCore();
+
+   
     });
-builder.Services.AddAuthorization(options => options.AddPolicy("ApiScope", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "web-api");
-    }));
+
+builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+
+//builder.Services.AddAuthorization(options => options.AddPolicy("ApiScope", policy =>
+//    {
+//        policy.RequireAuthenticatedUser();
+//        policy.RequireClaim("scope", "web-api");
+//    }));
 
 // CORS policy to allow SwaggerUI and React clients
 builder.Services.AddCors(options => options.AddPolicy("default", policy =>

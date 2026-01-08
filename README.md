@@ -84,15 +84,7 @@ Minimal but production-ready relational schema for Hindu pandit booking + tithi 
 | `DefaultDakshina`        | `decimal(10,2)` | Default(0)      | Base price (AUD)               |
 | `IsActive`               | `bool`          | Default(true)   | Availability                   |
 
-### PanditPujaRates
 
-| Column           | Type            | Constraints          | Description           |
-| ---------------- | --------------- | -------------------- | --------------------- |
-| `Id`             | `Guid`          | PK                   | Rate ID               |
-| `PanditId`       | `Guid`          | FK→PanditProfiles.Id | Pandit                |
-| `PujaTypeId`     | `Guid`          | FK→PujaTypes.Id      | Puja type             |
-| `CustomDakshina` | `decimal(10,2)` | Nullable             | Custom price override |
-| `Notes`          | `string(500)`   | Nullable             | Special notes         |
 
 ### PanditAvailabilities
 
@@ -126,19 +118,7 @@ Minimal but production-ready relational schema for Hindu pandit booking + tithi 
 | `CreatedAt`           | `DateTimeOffset` | NotNull               | Booking created                               |
 | `UpdatedAt`           | `DateTimeOffset` | NotNull               | Last status change                            |
 
-### Payments
 
-| Column              | Type             | Constraints    | Description                  |
-| ------------------- | ---------------- | -------------- | ---------------------------- |
-| `Id`                | `Guid`           | PK             | Payment ID                   |
-| `BookingId`         | `Guid`           | FK→Bookings.Id | Linked booking               |
-| `Amount`            | `decimal(10,2)`  | NotNull        | Payment amount               |
-| `Currency`          | `string(3)`      | Default("AUD") | Currency code                |
-| `Status`            | `string(20)`     | Indexed        | Pending/Paid/Failed/Refunded |
-| `Provider`          | `string(50)`     | NotNull        | "Stripe", "PayPal"           |
-| `ProviderReference` | `string(200)`    | Indexed        | External payment ID          |
-| `CreatedAt`         | `DateTimeOffset` | NotNull        | Payment initiated            |
-| `UpdatedAt`         | `DateTimeOffset` | NotNull        | Last status change           |
 
 ### Reviews
 
