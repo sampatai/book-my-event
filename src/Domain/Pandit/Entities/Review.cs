@@ -9,9 +9,6 @@ namespace Domain.Pandit.Entities
     public class Review : AuditableEntity, IAggregateRoot
     {
         public Guid ReviewId { get; private set; }
-
-        // FK -> Pandit.PanditId (Guid) in your current model;
-        // adjust type/name if your Pandit PK is different in persistence.
         public Guid PanditId { get; private set; }
 
         public int Rating { get; private set; }          // 1-5

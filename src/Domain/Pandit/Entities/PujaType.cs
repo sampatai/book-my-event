@@ -13,17 +13,19 @@ namespace Domain.Pandit.Entities
         public string Name { get; private set; }
         public string? Description { get; private set; }
         public bool IsActive { get; private set; }
+        public bool IsRecurring { get; private set; }
         protected PujaType() { }
 
         internal PujaType(
             string name,
-            long userId,
-            string? description = null,
-            bool isActive = true)
+            bool isRecurring,
+            string? description = null
+            )
         {
             SetName(name);
             SetDescription(description);
-            IsActive = isActive;
+            SetIsRecurring(isRecurring);
+            Activate();
             PujaTypeId = Guid.NewGuid();
 
         }
@@ -52,5 +54,9 @@ namespace Domain.Pandit.Entities
         {
             IsActive = false;
         }
+
+        internal void SetIsRecurring(bool isRecurring) =>
+            IsRecurring = isRecurring;
+
     }
 }
