@@ -71,7 +71,17 @@ Minimal but production-ready relational schema for Hindu pandit booking + tithi 
 | `IsVerified`        | `bool`         | Default(false)       | Admin verified                   |
 | `AverageRating`     | `decimal(2,1)` | Nullable             | 1.0-5.0 aggregate                |
 
-## Pujas, Availability, Bookings
+### Reviews
+
+| Column      | Type             | Constraints            | Description       |
+| ----------- | ---------------- | ---------------------- | ----------------- |
+| `Id`        | `Guid`           | PK                     | Review ID         |
+| `PanditId` | `Guid`           | FK→Bookings.Id, Unique | Completed booking |
+| `Rating`    | `int`            | 1-5                    | Star rating       |
+| `Comment`   | `text`           | Nullable               | Review text       |
+| `CreatedAt` | `DateTimeOffset` | NotNull                | Review posted     |
+
+## Pujas, Bookings
 
 ### PujaTypes
 
@@ -86,16 +96,6 @@ Minimal but production-ready relational schema for Hindu pandit booking + tithi 
 
 
 
-### PanditAvailabilities
-
-| Column        | Type   | Constraints          | Description     |
-| ------------- | ------ | -------------------- | --------------- |
-| `Id`          | `Guid` | PK                   | Availability ID |
-| `PanditId`    | `Guid` | FK→PanditProfiles.Id | Pandit          |
-| `DayOfWeek`   | `int`  | 0-6 (Sun-Sat)        | Weekday         |
-| `StartTime`   | `time` | NotNull              | Available from  |
-| `EndTime`     | `time` | NotNull              | Available until |
-| `IsRecurring` | `bool` | Default(true)        | Weekly repeat   |
 
 ### Bookings
 
@@ -119,31 +119,6 @@ Minimal but production-ready relational schema for Hindu pandit booking + tithi 
 | `UpdatedAt`           | `DateTimeOffset` | NotNull               | Last status change                            |
 
 
-
-### Reviews
-
-| Column      | Type             | Constraints            | Description       |
-| ----------- | ---------------- | ---------------------- | ----------------- |
-| `Id`        | `Guid`           | PK                     | Review ID         |
-| `BookingId` | `Guid`           | FK→Bookings.Id, Unique | Completed booking |
-| `Rating`    | `int`            | 1-5                    | Star rating       |
-| `Comment`   | `text`           | Nullable               | Review text       |
-| `CreatedAt` | `DateTimeOffset` | NotNull                | Review posted     |
-
-## Tithi and Event Data
-
-### TithiProfiles (per family member)
-
-| Column       | Type          | Constraints           | Description                |
-| ------------ | ------------- | --------------------- | -------------------------- |
-| `Id`         | `Guid`        | PK                    | Profile ID                 |
-| `DevoteeId`  | `Guid`        | FK→DevoteeProfiles.Id | Owner                      |
-| `PersonName` | `string(100)` | NotNull               | "Father Sharma"            |
-| `Relation`   | `string(50)`  | NotNull               | "Self", "Father", "Mother" |
-| `BirthDate`  | `date`        | NotNull               | Gregorian birth date       |
-| `BirthTime`  | `time`        | Nullable              | Birth time                 |
-| `BirthPlace` | `string(200)` | NotNull               | Birth location             |
-| `Timezone`   | `string(50)`  | NotNull               | Birth timezone             |
 
 ### TithiEvents (generated per year)
 
