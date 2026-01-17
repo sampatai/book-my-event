@@ -1,6 +1,5 @@
-﻿using Application.Abstractions.Data;
-using Domain.Todos;
-using Domain.Users;
+﻿
+using Domain.Pandit.Root;
 using Infrastructure.DomainEvents;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel;
@@ -12,7 +11,7 @@ public sealed class ApplicationDbContext(
     IDomainEventsDispatcher domainEventsDispatcher)
     : DbContext(options), IApplicationDbContext
 {
-    public DbSet<User> Users { get; set; }
+    public DbSet<Pandit> Pandits { get; set; }
 
   
 
