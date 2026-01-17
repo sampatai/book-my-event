@@ -6,7 +6,6 @@ namespace Domain.Booking.Root
 {
     public class Booking : Entity, IAggregateRoot
     {
-
         protected Booking() { }
 
         public Booking(
