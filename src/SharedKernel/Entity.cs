@@ -2,22 +2,21 @@
 
 public abstract class Entity
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
-
     public virtual long Id { get; protected init; }
 
-    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+    private readonly List<IDomainEvent> _domainEvents = [];
+
+    public List<IDomainEvent> DomainEvents => [.. _domainEvents];
+
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
 
     public void Raise(IDomainEvent domainEvent)
     {
-        ArgumentNullException.ThrowIfNull(domainEvent);
         _domainEvents.Add(domainEvent);
     }
-
-    public void RemoveDomainEvent(IDomainEvent domainEvent) => _domainEvents.Remove(domainEvent);
-
-    public void ClearDomainEvents() => _domainEvents.Clear();
-
     public bool IsTransient() => EqualityComparer<long>.Default.Equals(Id, default);
 
     public override bool Equals(object? obj)

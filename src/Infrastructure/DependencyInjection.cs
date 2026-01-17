@@ -24,9 +24,10 @@ public static class DependencyInjection
        IConfiguration configuration) =>
        services
            .AddServices()
-           .AddHealthChecks(configuration)        
+           .AddDatabase(configuration)
+           .AddHealthChecks(configuration)
            .AddAuthorizationInternal();
-          
+
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
@@ -36,7 +37,7 @@ public static class DependencyInjection
         return services;
     }
 
-    
+
 
     private static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
@@ -47,7 +48,20 @@ public static class DependencyInjection
         return services;
     }
 
-    
+    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+    {
+        string? connectionString = configuration.GetConnectionString("Database");
+
+        services.AddDbContext<ApplicationDbContext>(
+            options => options
+                .UseNpgsql(connectionString, npgsqlOptions =>
+                    npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
+                .UseSnakeCaseNamingConvention());
+
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+        return services;
+    }
 
     private static IServiceCollection AddAuthorizationInternal(this IServiceCollection services)
     {
@@ -61,6 +75,6 @@ public static class DependencyInjection
         return services;
     }
 
-    
+
 
 }

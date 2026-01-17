@@ -1,84 +1,62 @@
-﻿using Domain.ServiceEntity.Root;
-using OpenIddict.EntityFrameworkCore.Models;
-
+﻿using Application.Abstractions.Data;
+using Domain.Todos;
+using Domain.Users;
+using Infrastructure.DomainEvents;
+using Microsoft.EntityFrameworkCore;
+using SharedKernel;
 
 namespace Infrastructure.Database;
 
-public sealed class ApplicationDbContext
-
-    : IdentityDbContext<User, IdentityRole<long>, long>, IUnitOfWork
+public sealed class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    IDomainEventsDispatcher domainEventsDispatcher)
+    : DbContext(options), IApplicationDbContext
 {
-    
+    public DbSet<User> Users { get; set; }
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
-    ) : base(options)
+  
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        //_currentUserHelper = currentUserHelper ?? throw new ArgumentNullException(nameof(currentUserHelper));
-        System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
+        modelBuilder.HasDefaultSchema(Schemas.Default);
     }
 
-    public DbSet<OpenIddictEntityFrameworkCoreApplication> OpenIddictApplications =>  Set<OpenIddictEntityFrameworkCoreApplication>();
-    public DbSet<OpenIddictEntityFrameworkCoreAuthorization> OpenIddictAuthorizations => Set<OpenIddictEntityFrameworkCoreAuthorization>();
-    public DbSet<OpenIddictEntityFrameworkCoreScope> OpenIddictScopes => Set<OpenIddictEntityFrameworkCoreScope>();
-    public DbSet<OpenIddictEntityFrameworkCoreToken> OpenIddictTokens => Set<OpenIddictEntityFrameworkCoreToken>();
-    public DbSet<ServiceEntity> ServiceEntities => Set<ServiceEntity>();
-    protected override void OnModelCreating(ModelBuilder builder)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        base.OnModelCreating(builder);
+        // When should you publish domain events?
+        //
+        // 1. BEFORE calling SaveChangesAsync
+        //     - domain events are part of the same transaction
+        //     - immediate consistency
+        // 2. AFTER calling SaveChangesAsync
+        //     - domain events are a separate transaction
+        //     - eventual consistency
+        //     - handlers can fail
 
-        // Apply all configurations in the assembly
-        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        int result = await base.SaveChangesAsync(cancellationToken);
 
-        // Set the default schema (if needed)
-        builder.HasDefaultSchema(Schemas.Default);
-    }
-
-    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken)
-    {
-        UpdateAuditableEntities();
-
-      
-        // 2. Save changes
-        await base.SaveChangesAsync(cancellationToken);
-        // 1. Dispatch domain events BEFORE save — ensures atomicity
         await PublishDomainEventsAsync();
-        return true;
-    }
 
-    private void UpdateAuditableEntities()
-    {
-        IEnumerable<EntityEntry> entries = ChangeTracker
-            .Entries()
-            .Where(e => e.Entity is AuditableEntity &&
-                       (e.State == EntityState.Added || e.State == EntityState.Modified));
-
-        foreach (EntityEntry entry in entries)
-        {
-            var entity = (AuditableEntity)entry.Entity;
-
-            if (entry.State == EntityState.Added)
-                entity.SetCreationAudits(0); // Replace 0 with actual userId
-            else
-                entity.SetModificationAudits(0); // Replace 0 with actual userId
-        }
+        return result;
     }
 
     private async Task PublishDomainEventsAsync()
     {
         var domainEvents = ChangeTracker
             .Entries<Entity>()
-            .Select(e => e.Entity)
+            .Select(entry => entry.Entity)
             .SelectMany(entity =>
             {
-                var events = entity.DomainEvents.ToList(); // Copy events
-                entity.ClearDomainEvents();                // Clear from entity
-                return events;
+                List<IDomainEvent> domainEvents = entity.DomainEvents;
+
+                entity.ClearDomainEvents();
+
+                return domainEvents;
             })
             .ToList();
 
-        //foreach (IDomainEvent? domainEvent in domainEvents)
-        //    await _messageBus.PublishAsync(domainEvent);
+        await domainEventsDispatcher.DispatchAsync(domainEvents);
     }
 }

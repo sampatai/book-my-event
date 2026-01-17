@@ -23,7 +23,6 @@
   <ItemGroup>
     <Folder Include="Database\Factory\" />
     <Folder Include="Database\Seed\" />
-    <Folder Include="DomainEvents\" />
     <Folder Include="Database\Migrations\" />
   </ItemGroup>
 
