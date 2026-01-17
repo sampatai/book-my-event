@@ -16,20 +16,16 @@ public class Devotee : AuditableEntity, IAggregateRoot
     public readonly List<DevoteeVerification> _verifications = new();
     public Guid DevoteeId { get; private set; }
 
-    // Invariant: one profile per user (enforced at repository/db level via unique index)
     public long UserId { get; private set; }
 
-    // Simple value objects could be introduced later for richer behavior
     public string FullName { get; private set; }
 
-    // Address as value object
     public Address Address { get; private set; }
     public VerificationState VerificationState { get; private set; }
 
     public IEnumerable<DevoteeVerification> Verifications => _verifications.AsReadOnly();
 
 
-    // For EF Core and serializers
     protected Devotee() { }
 
     public Devotee(
