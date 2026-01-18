@@ -1,4 +1,5 @@
 ﻿
+using Application.Abstractions.Authentication;
 using Domain.Pandit.Root;
 using Infrastructure.DomainEvents;
 using Microsoft.EntityFrameworkCore;
@@ -8,9 +9,11 @@ namespace Infrastructure.Database;
 
 public sealed class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    IDomainEventsDispatcher domainEventsDispatcher)
-    : DbContext(options), IApplicationDbContext
+    IDomainEventsDispatcher domainEventsDispatcher,
+    IUserContext userContext)
+    : DbContext(options), IUnitOfWork, IApplicationDbContext
 {
+    
     public DbSet<Pandit> Pandits { get; set; }
 
   
@@ -22,8 +25,9 @@ public sealed class ApplicationDbContext(
         modelBuilder.HasDefaultSchema(Schemas.Default);
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public  async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
     {
+        UpdateAuditableEntities();
         // When should you publish domain events?
         //
         // 1. BEFORE calling SaveChangesAsync
@@ -38,7 +42,7 @@ public sealed class ApplicationDbContext(
 
         await PublishDomainEventsAsync();
 
-        return result;
+        return true;
     }
 
     private async Task PublishDomainEventsAsync()
@@ -58,4 +62,27 @@ public sealed class ApplicationDbContext(
 
         await domainEventsDispatcher.DispatchAsync(domainEvents);
     }
+    private void UpdateAuditableEntities()
+    {
+        var user = userContext.UserId;
+        IEnumerable<EntityEntry> entries = ChangeTracker
+            .Entries()
+            .Where(e => e.Entity is AuditableEntity &&
+                       (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (EntityEntry entry in entries)
+        {
+            var entity = (AuditableEntity)entry.Entity;
+
+            if (entry.State == EntityState.Added)
+                entity.SetCreationAudits(user);
+            else
+                entity.SetModificationAudits(user); // Replace 0 with actual userId
+
+        }
+    }
+
+
 }
+
+    

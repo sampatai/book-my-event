@@ -8,9 +8,9 @@ using Domain.ValueObjects;
 
 namespace Domain.Booking.DomainEvent
 {
-    public record BookingCreatedEvent(long BookingId, long PanditId, long DevoteeId) : IDomainEvent;
-    public record BookingStatusEvent(long BookingId, long PanditId, long DevoteeId, BookingStatus BookingStatus) : IDomainEvent;
-    public record BookingRescheduledEvent(long BookingId, DateOnly NewDate, TimeOnly NewTime) : IDomainEvent;
-    public record BookingVenueUpdatedEvent(long BookingId, Address NewVenue) : IDomainEvent;
+    public record BookingCreatedEvent(Guid BookingId, long PanditId, long DevoteeId) : IDomainEvent;
+    public record BookingStatusEvent(Guid BookingId, long PanditId, long DevoteeId, BookingStatus BookingStatus) : IDomainEvent;
+    public record BookingRescheduledEvent(Guid BookingId, DateOnly NewDate, TimeOnly NewTime) : IDomainEvent;
+    public record BookingVenueUpdatedEvent(Guid BookingId, Address NewVenue) : IDomainEvent;
 
 }

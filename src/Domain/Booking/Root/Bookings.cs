@@ -28,7 +28,7 @@ namespace Domain.Booking.Root
             PujaVenue = pujaVenue;
             BookingStatus = BookingStatus.Pending;
             Raise(new BookingCreatedEvent(
-               this.Id,
+               this.BookingId,
                panditId,
                devoteeId));
         }
@@ -47,7 +47,7 @@ namespace Domain.Booking.Root
         {
             BookingStatus = bookingStatus;
             Raise(new BookingStatusEvent(
-                this.Id,
+                this.BookingId,
                 PanditId,
                 DevoteeId, bookingStatus));
 
@@ -64,7 +64,7 @@ namespace Domain.Booking.Root
             BookingDate = newDate;
             BookingTime = newTime;
             Raise(new BookingRescheduledEvent(
-                this.Id,
+               this.BookingId,
                 newDate,
                 newTime));
         }
@@ -73,7 +73,7 @@ namespace Domain.Booking.Root
             PujaVenue = newVenue;
 
             Raise(new BookingVenueUpdatedEvent(
-                this.Id,
+                this.BookingId,
                 newVenue));
         }
     }

@@ -10,7 +10,6 @@ namespace Infrastructure.Database
     public interface IApplicationDbContext
     {
         DbSet<Pandit> Pandits { get;}
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
     }
 }

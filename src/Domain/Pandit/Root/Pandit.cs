@@ -59,6 +59,8 @@ namespace Domain.Pandit.Root
             Guard.Against.NullOrWhiteSpace(languages, nameof(languages));
             Guard.Against.NegativeOrZero(experienceInYears, nameof(experienceInYears));
             FullName = fullName;
+            Languages = languages;
+            ExperienceInYears = experienceInYears;
         }
 
         public void SetAddress(
@@ -131,15 +133,18 @@ namespace Domain.Pandit.Root
         }
 
         public void AddPujaType(string name,
-            long userId,
-            string? description = null,
-            bool isActive = true)
+           
+            string? description,
+            
+            bool isRecurring)
         {
             var pujaType = new PujaType(
                 name,
-                userId,
-                description,
-                isActive);
+               
+                isRecurring,
+                description
+                );
+            pujaType.Activate();
             Guard.Against.Null(pujaType, nameof(pujaType));
             _pujaTypes.Add(pujaType);
         }

@@ -7,12 +7,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Users\Login\LoginUserCommand.cs" />
-    <Compile Remove="Users\Register\RegisterUserCommandHandler.cs" />
-    <Compile Remove="Users\Register\UserRegisteredDomainEventHandler.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Remove="C:\Users\Lenovo\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\4.14.0\contentFiles\any\any\BuildHost-net472\cs\System.CommandLine.resources.dll" />
     <Content Remove="C:\Users\Lenovo\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\4.14.0\contentFiles\any\any\BuildHost-net472\de\System.CommandLine.resources.dll" />
     <Content Remove="C:\Users\Lenovo\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\4.14.0\contentFiles\any\any\BuildHost-net472\es\System.CommandLine.resources.dll" />
