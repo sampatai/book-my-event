@@ -120,25 +120,14 @@ namespace Auth.Infrastructure.Database.Seed
 
                 // Seed User linked to ServiceEntity
                 var user = new User(
-                    username: "admin@example.com",
-                    firstname: "Admin",
-                    lastname: "User",
-                   alternativeContact: "+1234567890",
+                  
                    email: "admin@example.com",
                    phoneNumber: "+1234567890"
                 );
 
 
                 user.EmailConfirmed = true;
-                // Optionally set the address
-                user.SetAddress(
-                    street: "123 Main St",
-                    suburb: "Central",
-                    state: "StateName",
-                    postcode: "12345",
-                    country: "CountryName",
-                    city: "CityName"
-                );
+                
 
                 // Optionally set the ServiceEntityId if you have one
                 user.SetServiceEntityId(serviceEntityId: serviceEntity.Id);
@@ -160,8 +149,7 @@ namespace Auth.Infrastructure.Database.Seed
                     {
                         new Claim("custom_claim", "custom_value"),
                         new Claim("globaluserclaim", "global_value"),
-                        new Claim(ClaimTypes.GivenName, user.FirstName),
-                        new Claim(ClaimTypes.Surname, user.LastName)
+                        
                     };
                     await userManager.AddClaimsAsync(user, claims);
                 }
