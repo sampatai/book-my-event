@@ -1,6 +1,6 @@
 using Domain.Pandit.Root;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Domain.ValueObjects;
+
 
 namespace Infrastructure.Persistence.Configurations
 {
@@ -8,13 +8,23 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Pandit> builder)
         {
-            builder.HasKey(p => p.PanditId);
+            builder.ToTable(nameof(Pandit)
+                .Pluralize().Underscore());
+            builder.HasKey(x => x.Id);
+            builder.Ignore(x => x.DomainEvents);
+            builder.Property(d => d.PanditId)
+           .IsRequired(true);
+            builder.HasIndex(d => d.PanditId)
+                .IsUnique(true);
 
-            builder.Property(p => p.UserId).IsRequired();
+            builder.Property(p => p.UserId)
+                .IsRequired();
+            builder.HasIndex(p => p.UserId);
+
             builder.Property(p => p.FullName).IsRequired().HasMaxLength(200);
             builder.Property(p => p.Languages).IsRequired().HasMaxLength(200);
             builder.Property(p => p.ExperienceInYears).IsRequired();
-            builder.Property(p => p.VerificationState).IsRequired();
+            
             builder.Property(p => p.AverageRating);
 
             builder.OwnsOne(p => p.Address, a =>
@@ -27,9 +37,13 @@ namespace Infrastructure.Persistence.Configurations
                 a.Property(p => p.AddressLine1).HasMaxLength(200);
                 a.Property(p => p.AddressLine2).HasMaxLength(200);
                 a.Property(p => p.Timezone).HasMaxLength(100);
+                a.WithOwner();
             });
 
-            
+            builder.HasOne(x => x.VerificationState)
+            .WithMany()
+            .HasForeignKey("VerificationStateId")
+            .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
