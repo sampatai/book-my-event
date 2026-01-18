@@ -51,7 +51,7 @@ public class Devotee : AuditableEntity, IAggregateRoot
             city, addressLine1, addressLine2, timezone);
         DevoteeId = Guid.NewGuid();
         VerificationState = verificationState;
-        Raise(new DevoteeCreatedEvent(this.DevoteeId, userId); 
+        Raise(new DevoteeCreatedEvent(this.DevoteeId, userId)); 
             }
 
 

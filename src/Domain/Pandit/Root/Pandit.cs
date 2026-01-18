@@ -59,6 +59,8 @@ namespace Domain.Pandit.Root
             Guard.Against.NullOrWhiteSpace(languages, nameof(languages));
             Guard.Against.NegativeOrZero(experienceInYears, nameof(experienceInYears));
             FullName = fullName;
+            Languages = languages;
+            ExperienceInYears = experienceInYears;
         }
 
         public void SetAddress(
