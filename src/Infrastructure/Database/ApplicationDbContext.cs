@@ -1,4 +1,5 @@
 ﻿
+using Application.Abstractions.Authentication;
 using Domain.Pandit.Root;
 using Infrastructure.DomainEvents;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +9,11 @@ namespace Infrastructure.Database;
 
 public sealed class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    IDomainEventsDispatcher domainEventsDispatcher)
+    IDomainEventsDispatcher domainEventsDispatcher,
+    IUserContext userContext)
     : DbContext(options), IUnitOfWork, IApplicationDbContext
 {
-    public ApplicationDbContext()
-    {
-        
-    }
+    
     public DbSet<Pandit> Pandits { get; set; }
 
   
@@ -65,6 +64,7 @@ public sealed class ApplicationDbContext(
     }
     private void UpdateAuditableEntities()
     {
+        var user = userContext.UserId;
         IEnumerable<EntityEntry> entries = ChangeTracker
             .Entries()
             .Where(e => e.Entity is AuditableEntity &&
@@ -74,10 +74,10 @@ public sealed class ApplicationDbContext(
         {
             var entity = (AuditableEntity)entry.Entity;
 
-            if (entry.State == EntityState.Added){
-                entity.SetCreationAudits(0); // Replace 0 with actual userId
+            if (entry.State == EntityState.Added)
+                entity.SetCreationAudits(user);
             else
-                entity.SetModificationAudits(0); // Replace 0 with actual userId
+                entity.SetModificationAudits(user); // Replace 0 with actual userId
 
         }
     }
@@ -86,4 +86,3 @@ public sealed class ApplicationDbContext(
 }
 
     
-}
