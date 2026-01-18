@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Common.Enums;
 using Domain.Devotee.Entities;
+using Domain.Devotee.Events;
 using Domain.ValueObjects;
 using SharedKernel;
 
@@ -50,13 +51,15 @@ public class Devotee : AuditableEntity, IAggregateRoot
             city, addressLine1, addressLine2, timezone);
         DevoteeId = Guid.NewGuid();
         VerificationState = verificationState;
-    }
+        Raise(new DevoteeCreatedEvent(this.DevoteeId, userId); 
+            }
 
 
     public void UpdateName(string fullName)
     {
         Guard.Against.NullOrWhiteSpace(fullName, nameof(fullName));
         FullName = fullName;
+        Raise(new DevoteeUpdateEvent(this.DevoteeId, this.UserId));
     }
 
     public void UpdateAddress(
@@ -78,6 +81,7 @@ public class Devotee : AuditableEntity, IAggregateRoot
     public void SetVerificationState(VerificationState newState)
     {
         VerificationState = newState;
+        Raise(new DevoteeVerificationEvent(this.DevoteeId, newState));
     }
 
     public void AddVerification(string documentPath, string documentName)
