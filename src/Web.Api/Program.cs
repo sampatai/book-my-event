@@ -67,7 +67,7 @@ builder.Services.AddCors(options => options.AddPolicy("default", policy =>
     builder.Configuration.GetSection("Services").Bind(servicesOptions);
     policy.WithOrigins(
             
-            servicesOptions.ReactClient.BaseUrl)
+        servicesOptions.ReactClient.BaseUrl)
         .AllowAnyHeader()
         .AllowAnyMethod();
 }));

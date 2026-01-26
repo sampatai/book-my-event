@@ -4,6 +4,7 @@ using Application.Abstractions.Authentication;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
+using Infrastructure.DomainEvents;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -26,15 +27,14 @@ public static class DependencyInjection
            .AddServices()
            .AddDatabase(configuration)
            .AddHealthChecks(configuration)
+           .AddAuthenticationInternal(configuration)
            .AddAuthorizationInternal();
 
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        services.AddHttpContextAccessor();
-        services.AddScoped<IUserContext, UserContext>();
-
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
         return services;
     }
 
@@ -63,7 +63,17 @@ public static class DependencyInjection
 
         return services;
     }
+    private static IServiceCollection AddAuthenticationInternal(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
+        return services;
+    }
     private static IServiceCollection AddAuthorizationInternal(this IServiceCollection services)
     {
 

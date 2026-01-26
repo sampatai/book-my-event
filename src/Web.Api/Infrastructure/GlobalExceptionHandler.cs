@@ -1,8 +1,9 @@
-﻿
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
- namespace SharedKernel;
+namespace Web.Api.Infrastructure;
 
-public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
@@ -12,8 +13,7 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
     {
         logger.LogError(exception, "Unhandled exception occurred");
 
-        var problemDetails = new ProblemDetails
-        {
+        var problemDetails = new ProblemDetails {
             Status = StatusCodes.Status500InternalServerError,
             Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
             Title = "Server failure"
@@ -26,3 +26,4 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         return true;
     }
 }
+
