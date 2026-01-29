@@ -1,4 +1,6 @@
-﻿ namespace SharedKernel;
+﻿
+
+namespace Web.Api.Extensions;
 
 public static class MiddlewareExtensions
 {

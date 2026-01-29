@@ -1,19 +1,21 @@
 ﻿using System.Reflection;
-
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SharedKernel;
 
-
-namespace SharedKernel;
+namespace Web.Api.Extensions;
 
 public static class EndpointExtensions
 {
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {
-        services.Scan(scan => scan
-            .FromAssemblies(assembly)
-            .AddClasses(classes => classes.AssignableTo<IEndpoint>())
-            .As<IEndpoint>()
-            .WithTransientLifetime());
+        ServiceDescriptor[] serviceDescriptors = assembly
+            .DefinedTypes
+            .Where(type => type is { IsAbstract: false, IsInterface: false } &&
+                           type.IsAssignableTo(typeof(IEndpoint)))
+            .Select(type => ServiceDescriptor.Transient(typeof(IEndpoint), type))
+            .ToArray();
+
+        services.TryAddEnumerable(serviceDescriptors);
 
         return services;
     }
@@ -27,7 +29,9 @@ public static class EndpointExtensions
         IEndpointRouteBuilder builder = routeGroupBuilder is null ? app : routeGroupBuilder;
 
         foreach (IEndpoint endpoint in endpoints)
+        {
             endpoint.MapEndpoint(builder);
+        }
 
         return app;
     }

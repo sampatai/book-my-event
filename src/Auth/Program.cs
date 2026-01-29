@@ -14,10 +14,6 @@ using Auth.Domain.Users.Root;
 var builder = WebApplication.CreateBuilder(args);
 
 
-
-// Enable PII logging for debugging purposes (disable in production)
-IdentityModelEventSource.ShowPII = true;
-
 builder.Services.AddAuthInfrastructure(builder.Configuration);
 
 //// Add services to the container.

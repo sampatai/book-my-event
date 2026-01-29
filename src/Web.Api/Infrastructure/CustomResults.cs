@@ -1,5 +1,6 @@
-﻿
-namespace SharedKernel;
+﻿using SharedKernel;
+
+namespace Web.Api.Infrastructure;
 
 public static class CustomResults
 {
@@ -18,8 +19,7 @@ public static class CustomResults
             extensions: GetErrors(result));
 
         static string GetTitle(Error error) =>
-            error.Type switch
-            {
+            error.Type switch {
                 ErrorType.Validation => error.Code,
                 ErrorType.Problem => error.Code,
                 ErrorType.NotFound => error.Code,
@@ -28,8 +28,7 @@ public static class CustomResults
             };
 
         static string GetDetail(Error error) =>
-            error.Type switch
-            {
+            error.Type switch {
                 ErrorType.Validation => error.Description,
                 ErrorType.Problem => error.Description,
                 ErrorType.NotFound => error.Description,
@@ -38,8 +37,7 @@ public static class CustomResults
             };
 
         static string GetType(ErrorType errorType) =>
-            errorType switch
-            {
+            errorType switch {
                 ErrorType.Validation => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                 ErrorType.Problem => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                 ErrorType.NotFound => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
@@ -48,8 +46,7 @@ public static class CustomResults
             };
 
         static int GetStatusCode(ErrorType errorType) =>
-            errorType switch
-            {
+            errorType switch {
                 ErrorType.Validation or ErrorType.Problem => StatusCodes.Status400BadRequest,
                 ErrorType.NotFound => StatusCodes.Status404NotFound,
                 ErrorType.Conflict => StatusCodes.Status409Conflict,

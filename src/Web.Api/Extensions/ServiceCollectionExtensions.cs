@@ -1,7 +1,7 @@
-﻿using System.Configuration;
-using Microsoft.Extensions.Configuration;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 using SharedKernel.Model;
+
 
 namespace Web.Api.Extensions;
 
@@ -14,44 +14,31 @@ public static class ServiceCollectionExtensions
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Event API", Version = "v1" });
 
             var servicesOptions = new ServicesOptions();
-           configuration.GetSection("Services").Bind(servicesOptions);
+            configuration.GetSection("Services").Bind(servicesOptions);
             var issuer = servicesOptions.Auth.BaseUrl;
-           //OAuth2/OpenID Connect configuration for Authorization Code flow (PKCE is handled by Swagger UI)
-           options.AddSecurityDefinition("web-api", new OpenApiSecurityScheme
-            {
+
+            // 1. Define the security scheme
+            options.AddSecurityDefinition("web-api", new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
-                {
-                    AuthorizationCode = new OpenApiOAuthFlow
-                    {
-                        // Use absolute URLs if Swagger UI is hosted separately; otherwise, relative is fine
+                Flows = new OpenApiOAuthFlows {
+                    AuthorizationCode = new OpenApiOAuthFlow {
                         AuthorizationUrl = new Uri($"{issuer}/connect/authorize"),
                         TokenUrl = new Uri($"{issuer}/connect/token"),
-                        Scopes = new Dictionary<string, string>
-                        {
-                            { "openid", "OpenID Connect scope" },
-                            { "profile", "User profile" },
-                            { "email", "User email" },
-                            {"web-api","Access to the Web API" }
+                        Scopes = new Dictionary<string, string> {
+                            ["openid"] = "OpenID Connect scope",
+                            ["profile"] = "User profile",
+                            ["email"] = "User email",
+                            ["web-api"] = "Access to the Web API"
                         }
                     }
                 }
-
             });
 
-            // Require the defined web-api scheme for all endpoints
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+            // 2. Add the security requirement using the NEW delegate pattern
+            options.AddSecurityRequirement(doc => new OpenApiSecurityRequirement {
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "web-api"
-                        }
-                    },
-                    new List<string> { "openid", "profile", "email", "web-api" }
+                    new OpenApiSecuritySchemeReference("web-api", doc),
+                    new List<string> { "web-api" }
                 }
             });
         });

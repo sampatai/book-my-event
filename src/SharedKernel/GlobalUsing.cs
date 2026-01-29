@@ -1,7 +1,6 @@
 ﻿global using Microsoft.AspNetCore.Routing;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.OpenApi.Models;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Diagnostics;
 global using Microsoft.AspNetCore.Mvc;
