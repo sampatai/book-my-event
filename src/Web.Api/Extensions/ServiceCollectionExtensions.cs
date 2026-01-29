@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 using SharedKernel.Model;
 
 
@@ -9,25 +10,21 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSwaggerGenWithAuth(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSwaggerGen(options =>
-        {           
+        {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Event API", Version = "v1" });
 
             var servicesOptions = new ServicesOptions();
             configuration.GetSection("Services").Bind(servicesOptions);
             var issuer = servicesOptions.Auth.BaseUrl;
 
-            // OAuth2 / OpenID Connect configuration for Authorization Code flow (PKCE handled by Swagger UI)
-            options.AddSecurityDefinition("web-api", new OpenApiSecurityScheme
-            {
+            // 1. Define the security scheme
+            options.AddSecurityDefinition("web-api", new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
-                {
-                    AuthorizationCode = new OpenApiOAuthFlow
-                    {
+                Flows = new OpenApiOAuthFlows {
+                    AuthorizationCode = new OpenApiOAuthFlow {
                         AuthorizationUrl = new Uri($"{issuer}/connect/authorize"),
                         TokenUrl = new Uri($"{issuer}/connect/token"),
-                        Scopes = new Dictionary<string, string>
-                        {
+                        Scopes = new Dictionary<string, string> {
                             ["openid"] = "OpenID Connect scope",
                             ["profile"] = "User profile",
                             ["email"] = "User email",
@@ -37,32 +34,13 @@ public static class ServiceCollectionExtensions
                 }
             });
 
-            // Require the defined web-api scheme for all endpoints
-            var oauthScheme = new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.OAuth2,
-                Scheme = "oauth2",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Flows = new OpenApiOAuthFlows
+            // 2. Add the security requirement using the NEW delegate pattern
+            options.AddSecurityRequirement(doc => new OpenApiSecurityRequirement {
                 {
-                    AuthorizationCode = new OpenApiOAuthFlow
-                    {
-                        AuthorizationUrl = new Uri($"{issuer}/connect/authorize"),
-                        TokenUrl = new Uri($"{issuer}/connect/token"),
-                        Scopes = new Dictionary<string, string>
-                        {
-                            ["openid"] = "OpenID Connect scope",
-                            ["profile"] = "User profile",
-                            ["email"] = "User email",
-                            ["web-api"] = "Access to the Web API"
-                        }
-                    }
+                    new OpenApiSecuritySchemeReference("web-api", doc),
+                    new List<string> { "web-api" }
                 }
-            };
-
-            options.AddSecurityDefinition("web-api", oauthScheme);
-
+            });
         });
 
         return services;
