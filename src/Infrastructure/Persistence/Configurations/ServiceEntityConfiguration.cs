@@ -1,7 +1,7 @@
 ﻿using Domain.ServiceEntity.Root;
 using Humanizer;
 
-namespace Infrastructure.Configurations
+namespace Infrastructure.Persistence.Configurations
 {
     public class ServiceEntityConfiguration : IEntityTypeConfiguration<ServiceEntity>
     {
