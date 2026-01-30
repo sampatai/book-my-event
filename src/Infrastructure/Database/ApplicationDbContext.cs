@@ -1,5 +1,7 @@
 ﻿
 using Application.Abstractions.Authentication;
+using Domain.Booking.Root;
+using Domain.Devotee.Root;
 using Domain.Pandit.Root;
 using Infrastructure.DomainEvents;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +15,10 @@ public sealed class ApplicationDbContext(
     IUserContext userContext)
     : DbContext(options), IUnitOfWork, IApplicationDbContext
 {
-    
-    public DbSet<Pandit> Pandits { get; set; }
 
-  
+    public DbSet<Devotee> Devotees => Set<Devotee>();
+    public DbSet<Pandit> Pandits => Set<Pandit>();
+    public DbSet<Booking> Bookings => Set<Booking>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Application.Abstractions.Messaging;
 
-namespace Application.Query
+namespace Application.Query.Pandit
 {
     public static class ListPandit
     {

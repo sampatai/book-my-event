@@ -9,7 +9,7 @@ namespace Domain.Pandit.Entities
     public class Review : AuditableEntity, IAggregateRoot
     {
         public Guid ReviewId { get; private set; }
-        public Guid PanditId { get; private set; }
+       
 
         public int Rating { get; private set; }          // 1-5
         public string? Comment { get; private set; }     // nullable

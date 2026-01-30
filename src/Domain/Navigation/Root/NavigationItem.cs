@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Serilog;
 
 namespace Domain.Navigation.Root
 {
@@ -13,7 +14,7 @@ namespace Domain.Navigation.Root
         // The link to our Identity RoleClaim Value
         public string? RequiredPermission { get; private set; }
 
-        public int? ParentId { get; private set; }
+        public long? ParentId { get; private set; }
 
         // Use a backing field for encapsulation
         private readonly List<NavigationItem> _children = new();
