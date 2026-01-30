@@ -36,11 +36,7 @@ namespace Infrastructure.Persistence.Configurations
                 .HasForeignKey(x => x.ParentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 5. DDD Encapsulation: Backing Field for Children
-            // This allows EF to write to the _children list while exposing it as IReadOnlyCollection
-            builder.Metadata
-                .FindNavigation(nameof(NavigationItem.Children))?
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+          
 
             // 6. Navigation items that are "Roots" (ParentId is null)
             builder.HasIndex(x => x.ParentId);
