@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.Command.Pandit
+namespace Application.Command
 {
     public static class UpdatePandit
     {

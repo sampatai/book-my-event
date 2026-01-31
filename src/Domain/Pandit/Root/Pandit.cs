@@ -69,7 +69,7 @@ namespace Domain.Pandit.Root
             string city,
             string postcode,
             string state,
-            string country, string street, string suburb, string timezone)
+            string country, string street, string timezone)
         {
             Address = new Address(
                 street,
