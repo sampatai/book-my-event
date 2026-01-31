@@ -6,6 +6,7 @@ using Application.Model;
 using Domain.Pandit.Root;
 using Infrastructure.Database;
 using Microsoft.Extensions.Logging;
+using SharedKernel;
 
 namespace Infrastructure.Persistence.Repository
 {
@@ -34,6 +35,22 @@ namespace Infrastructure.Persistence.Repository
             {
                 logger.LogError(ex, "{@pandit}", pandit);
 
+                throw;
+            }
+        }
+
+        public async Task<Pandit> GetPanditAsync(Guid panditId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await applicationDbContext.Pandits.AsTracking()
+                    .SingleOrDefaultAsync(x => x.PanditId.Equals(panditId),
+                                      
+                                        cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Could not fetch Pandits {@panditId}", panditId);
                 throw;
             }
         }

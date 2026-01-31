@@ -7,10 +7,11 @@ using SharedKernel;
 
 namespace Application.Abstractions.IRepository
 {
-    public interface IPanditRepository: IRepository<Pandit>
+    public interface IPanditRepository : IRepository<Pandit>
     {
-         Task<Pandit> AddAsync(Pandit pandit, CancellationToken cancellationToken);
-        Task<Pandit> UpdateAsync(Pandit pandit,CancellationToken cancellationToken);
+        Task<Pandit> AddAsync(Pandit pandit, CancellationToken cancellationToken);
+        Task<Pandit> UpdateAsync(Pandit pandit, CancellationToken cancellationToken);
+        Task<Pandit> GetPanditAsync(Guid panditId, CancellationToken cancellationToken);
     }
     public interface IPanditReadRepository : IReadOnlyRepository<Pandit>
     {

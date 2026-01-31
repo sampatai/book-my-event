@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Abstractions.IRepository;
+using Application.Model;
 using Domain.Pandit.Root;
 using FluentValidation;
 using SharedKernel;
@@ -19,15 +20,7 @@ namespace Application.Command
             AddressCommand Address
         ) : ICommand;
 
-        public record AddressCommand(
-            string Street,
-            string City,
-            string State,
-            string PostalCode,
-            string Country,
-            string AddressLine1,
-            string? AddressLine2
-        );
+        
         #endregion
 
         #region Validator
