@@ -15,9 +15,8 @@ namespace Application.Query.Pandit
             public Validator(IPanditReadRepository panditReadRepository)
             {
                 RuleFor(x => x.PanditId)
-                    .NotEmpty().WithMessage("PanditId is required.")
-                    .MustAsync(async (id, ct) => await panditReadRepository.Exists(id, ct))
-                    .WithMessage("Pandit not found.");
+                    .NotEmpty().WithMessage("PanditId is required.");
+                   
             }
         }
         #endregion
