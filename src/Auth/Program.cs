@@ -47,42 +47,33 @@ builder.Services.AddOpenIddict()
                 // Enable the authorization, logout, token and userinfo endpoints.
                 options.SetAuthorizationEndpointUris("connect/authorize")
                        .SetEndSessionEndpointUris("connect/logout")
-                       .SetIntrospectionEndpointUris("connect/introspect")
                        .SetTokenEndpointUris("connect/token")
-                       .SetUserInfoEndpointUris("connect/userinfo")
-                       .SetEndUserVerificationEndpointUris("connect/verify");
+                       .SetUserInfoEndpointUris("connect/userinfo");
 
                 // Mark the "email", "profile" and "roles" scopes as supported scopes.
-                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles, "web-api");
+                options.RegisterScopes("web-api");
 
                 // Note: the sample uses the code and refresh token flows but you can enable
                 // the other flows if you need to support implicit, password or client credentials.
-                options.AllowAuthorizationCodeFlow()
-                       .AllowRefreshTokenFlow();
+                options
+                 .AllowAuthorizationCodeFlow()
+                 .RequireProofKeyForCodeExchange()
+                 .AllowClientCredentialsFlow()
+                 .AllowRefreshTokenFlow();
 
                 // Register the signing and encryption credentials.
-                options.AddDevelopmentEncryptionCertificate()
-                       .AddDevelopmentSigningCertificate();
+                options
+                .AddEphemeralEncryptionKey()
+                .AddEphemeralSigningKey()
+                .DisableAccessTokenEncryption();
 
                 // Register the ASP.NET Core host and configure the ASP.NET Core-specific options.
                 options.UseAspNetCore()
                        .EnableAuthorizationEndpointPassthrough()
-                       .EnableEndSessionEndpointPassthrough()
                        .EnableTokenEndpointPassthrough()
-                       .EnableUserInfoEndpointPassthrough()
-                       .EnableStatusCodePagesIntegration();
-            })
+                       .EnableUserInfoEndpointPassthrough();
 
-            // Register the OpenIddict validation components.
-            .AddValidation(options =>
-            {
-                // Import the configuration from the local OpenIddict server instance.
-                options.UseLocalServer();
-
-                // Register the ASP.NET Core host.
-                options.UseAspNetCore();
             });
-
 // CORS policy to allow SwaggerUI and React clients
 builder.Services.AddCors(options => options.AddPolicy("default", policy =>
     {

@@ -32,28 +32,22 @@ builder.Services
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
 builder.Services.AddOpenIddict()
-    .AddValidation(options =>
-    {
-        var servicesOptions = new ServicesOptions();
-        builder.Configuration.GetSection("Services").Bind(servicesOptions);
+.AddValidation(options =>
+ {
+     var servicesOptions = new ServicesOptions();
+     builder.Configuration.GetSection("Services").Bind(servicesOptions);
 
-        // Authority (OpenIddict Server URL)
-        options.SetIssuer(servicesOptions.Auth.BaseUrl);
+     options.SetIssuer(servicesOptions.Auth.BaseUrl);
 
-        // Audience validation
-        options.AddAudiences(servicesOptions.WebApi.BaseUrl);
+     options.UseSystemNetHttp();
+     options.UseAspNetCore();
+ });
 
-        // Use HTTP backchannel
-        options.UseSystemNetHttp();
-
-        // Register ASP.NET Core integration
-        options.UseAspNetCore();
-
-   
-    });
-
-builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+});
 //builder.Services.AddAuthorization(options => options.AddPolicy("ApiScope", policy =>
 //    {
 //        policy.RequireAuthenticatedUser();
@@ -77,7 +71,6 @@ builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
 WebApplication app = builder.Build();
 
-app.MapEndpoints();
 
 app.MapHealthChecks("health", new HealthCheckOptions {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
@@ -91,6 +84,8 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithOAuth(app.Configuration);
+    app.UseDeveloperExceptionPage();
+
 
     //app.ApplyMigrations<ApplicationDbContext>();
     //await DbSeeder.SeedOpenIddictClientsAsync(app.Services);
@@ -98,6 +93,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapEndpoints();
+
 app.MapControllers();
 
 await app.RunAsync();

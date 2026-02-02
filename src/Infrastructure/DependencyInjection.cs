@@ -1,10 +1,12 @@
 ﻿using System.Security.AccessControl;
 using System.Text;
 using Application.Abstractions.Authentication;
+using Application.Abstractions.IRepository;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.DomainEvents;
+using Infrastructure.Persistence.Repository;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +30,8 @@ public static class DependencyInjection
            .AddDatabase(configuration)
            .AddHealthChecks(configuration)
            .AddAuthenticationInternal(configuration)
-           .AddAuthorizationInternal();
+           .AddAuthorizationInternal()
+           .AddRepositories();
 
 
     private static IServiceCollection AddServices(this IServiceCollection services)
@@ -90,7 +93,14 @@ public static class DependencyInjection
 
         return services;
     }
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
 
+        services.AddScoped<IPanditRepository, PanditRepository>();
+        services.AddScoped<IPanditReadRepository, PanditReadRepository>();
+
+        return services;
+    }
 
 
 }

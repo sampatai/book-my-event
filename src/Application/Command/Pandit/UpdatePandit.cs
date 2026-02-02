@@ -12,7 +12,7 @@ namespace Application.Command
     public static class UpdatePandit
     {
        
-        public sealed record Command(
+        public sealed record UpdatePanditCommand(
             Guid PanditId,
             string FullName,
             string Languages,
@@ -20,7 +20,7 @@ namespace Application.Command
             AddressCommand Address
         ) : ICommand<UpdatePanditResponse>;
 
-        internal sealed class Validator : AbstractValidator<Command>
+        internal sealed class Validator : AbstractValidator<UpdatePanditCommand>
         {
             public Validator()
             {
@@ -31,7 +31,7 @@ namespace Application.Command
             }
         }
 
-        internal sealed class UpdatePanditHandler : ICommandHandler<Command, UpdatePanditResponse>
+        internal sealed class UpdatePanditHandler : ICommandHandler<UpdatePanditCommand, UpdatePanditResponse>
         {
             private readonly IPanditRepository _panditRepository;
 
@@ -40,7 +40,7 @@ namespace Application.Command
                 _panditRepository = panditRepository;
             }
 
-            public async Task<Result<UpdatePanditResponse>> Handle(Command command, CancellationToken cancellationToken)
+            public async Task<Result<UpdatePanditResponse>> Handle(UpdatePanditCommand command, CancellationToken cancellationToken)
             {
                 // Fetch the aggregate
                 var pandit = await _panditRepository.GetPanditAsync(command.PanditId, cancellationToken);

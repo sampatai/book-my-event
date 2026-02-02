@@ -16,7 +16,7 @@ namespace Application.Abstractions.IRepository
     }
     public interface IPanditReadRepository : IReadOnlyRepository<Pandit>
     {
-        Task<(IEnumerable<Pandit> Pandits, int TotalCount)> ReadAsync(PanditFilter panditFilter, CancellationToken cancellationToken)
+        Task<(IEnumerable<Pandit> Pandits, int TotalCount)> ReadAsync(PanditFilter panditFilter, CancellationToken cancellationToken);
         Task<Pandit> GetPanditAsync(Guid panditId, CancellationToken cancellationToken);
         Task<bool> Exists(Guid panditId, CancellationToken cancellationToken);
 

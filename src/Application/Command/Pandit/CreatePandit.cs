@@ -12,7 +12,7 @@ namespace Application.Command
     public static class CreatePandit
     {
         #region Command
-        public record Command(
+        public record CreatePanditCommand(
             long UserId,
             string FullName,
             string Languages,
@@ -24,7 +24,7 @@ namespace Application.Command
         #endregion
 
         #region Validator
-        public class Validator : AbstractValidator<Command>
+        public class Validator : AbstractValidator<CreatePanditCommand>
         {
             public Validator()
             {
@@ -41,7 +41,7 @@ namespace Application.Command
         #endregion
 
         #region Handler
-        internal sealed class Handler : ICommandHandler<Command>
+        internal sealed class Handler : ICommandHandler<CreatePanditCommand>
         {
             private readonly IPanditRepository _panditRepository;
 
@@ -50,7 +50,7 @@ namespace Application.Command
                 _panditRepository = panditRepository;
             }
 
-            public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
+            public async Task<Result> Handle(CreatePanditCommand command, CancellationToken cancellationToken)
             {
 
                 var pandit = new Pandit(
