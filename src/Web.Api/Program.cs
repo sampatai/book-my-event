@@ -89,9 +89,6 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     await Seeder.SeedNavigationMenuAsync(services, CancellationToken.None);
-
-    //app.ApplyMigrations<ApplicationDbContext>();
-    //await DbSeeder.SeedOpenIddictClientsAsync(app.Services);
 }
 
 app.UseAuthentication();

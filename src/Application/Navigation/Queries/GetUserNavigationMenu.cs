@@ -40,7 +40,7 @@ namespace Application.Navigation.Queries
                     }
                 }
 
-                response.AvailableActions = MapPermissionsToActions(query.UserPermissions);
+                response.AvailableActions = MapPermissionsToActionsDynamic(query.UserPermissions);
 
                 return Result<MenuResponse>.Success(response);
             }
@@ -52,16 +52,17 @@ namespace Application.Navigation.Queries
 
         private static bool IsUserAllowedAccess(NavigationItem item, List<string> userPermissions)
         {
+            // If no permission required, allow access
             if (string.IsNullOrEmpty(item.RequiredPermission))
                 return true;
 
-            return userPermissions.Contains(item.RequiredPermission);
+            // Check if user has the required permission or admin role
+            return userPermissions.Contains(item.RequiredPermission) || userPermissions.Contains("admin");
         }
 
         private static NavigationItemDto MapToDto(NavigationItem item, List<string> userPermissions)
         {
-            var dto = new NavigationItemDto
-            {
+            var dto = new NavigationItemDto {
                 Id = item.Id,
                 Title = item.Title,
                 Url = item.Url,
@@ -81,16 +82,64 @@ namespace Application.Navigation.Queries
             return dto;
         }
 
-        private static Dictionary<string, bool> MapPermissionsToActions(List<string> userPermissions)
+        
+        private static Dictionary<string, bool> MapPermissionsToActionsDynamic(List<string> userPermissions)
         {
+            bool isAdmin = userPermissions.Contains("admin");
+
+            // Extract all action types from permissions (e.g., "create", "edit", "delete", "list")
+            var allActions = ExtractActionTypes(userPermissions);
+
+            // Check if user has any "create" action across any resource
+            bool canCreate = isAdmin || allActions.Contains("create");
+
+            // Check if user has any "edit" action across any resource
+            bool canEdit = isAdmin || allActions.Contains("edit");
+
+            // Check if user has any "delete" action across any resource
+            bool canDelete = isAdmin || allActions.Contains("delete");
+
+            // Check if user has any "list" action across any resource
+            bool canList = isAdmin || allActions.Contains("list");
+
             return new Dictionary<string, bool>
             {
-                { "CanView", true },
-                { "CanCreate", userPermissions.Contains("navigation.create") || userPermissions.Contains("admin") },
-                { "CanEdit", userPermissions.Contains("navigation.edit") || userPermissions.Contains("admin") },
-                { "CanDelete", userPermissions.Contains("navigation.delete") || userPermissions.Contains("admin") },
-                { "CanList", userPermissions.Contains("navigation.list") || userPermissions.Contains("admin") }
+                { "CanView", true },  // Everyone can view the menu
+                { "CanCreate", canCreate },
+                { "CanEdit", canEdit },
+                { "CanDelete", canDelete },
+                { "CanList", canList }
             };
+        }
+
+        /// <summary>
+        /// Extracts action types from permission strings.
+        /// Example: ["users.create", "pandit.edit", "devotee.list"] 
+        /// Returns: ["create", "edit", "list"]
+        /// </summary>
+        private static HashSet<string> ExtractActionTypes(List<string> userPermissions)
+        {
+            var actions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var permission in userPermissions)
+            {
+                // Skip "admin" as it's not a resource.action format
+                if (permission.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // Split permission on dot (e.g., "users.create" -> ["users", "create"])
+                var parts = permission.Split('.');
+
+                // If valid permission format (resource.action)
+                if (parts.Length >= 2)
+                {
+                    // Add the action part (everything after the first dot)
+                    var action = string.Join(".", parts.Skip(1));
+                    actions.Add(action);
+                }
+            }
+
+            return actions;
         }
     }
 }
