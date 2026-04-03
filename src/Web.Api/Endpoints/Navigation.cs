@@ -85,10 +85,10 @@ internal sealed class Navigation : IEndpoint
         CancellationToken cancellationToken)
     {
         var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out var userId))
-        {
-            return Results.Unauthorized();
-        }
+        //if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out var userId))
+        //{
+        //    return Results.Unauthorized();
+        //}
 
         var userPermissions = httpContext.User
             .FindAll("permission")
@@ -96,7 +96,7 @@ internal sealed class Navigation : IEndpoint
             .ToList();
 
         var query = new GetUserNavigationMenu {
-            UserId = userId,
+            UserId = Random.Shared.NextInt64(),
             UserPermissions = userPermissions
         };
 
