@@ -85,7 +85,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithOAuth(app.Configuration);
     app.UseDeveloperExceptionPage();
-
+    // Seed navigation data can be added here when needed
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    await Seeder.SeedNavigationMenuAsync(services, CancellationToken.None);
 
     //app.ApplyMigrations<ApplicationDbContext>();
     //await DbSeeder.SeedOpenIddictClientsAsync(app.Services);

@@ -64,7 +64,7 @@ internal sealed class PanditEndpoints : IEndpoint
             return result.Match(Results.Ok, CustomResults.Problem);
         })
         .WithTags(Tags.Pandit)
-       .RequireAuthorization()
+      // .RequireAuthorization()
         ;
 
         //// Update Pandit

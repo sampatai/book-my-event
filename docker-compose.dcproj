@@ -15,6 +15,10 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="IMPLEMENTATION_CHECKLIST.md" />
+    <None Include="NAVIGATION_ERROR_FIX_REPORT.md" />
+    <None Include="NAVIGATION_IMPLEMENTATION_FIXES.md" />
+    <None Include="NAVIGATION_NEXT_STEPS.md" />
     <None Include="src\Web\Api\Endpoints\Pandits\PanditEndpoints.cs" />
   </ItemGroup>
 </Project>

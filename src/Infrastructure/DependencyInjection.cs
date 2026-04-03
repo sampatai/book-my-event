@@ -98,6 +98,10 @@ public static class DependencyInjection
 
         services.AddScoped<IPanditRepository, PanditRepository>();
         services.AddScoped<IPanditReadRepository, PanditReadRepository>();
+        
+        // Add Navigation repositories
+        services.AddScoped<INavigationRepository, NavigationRepository>();
+        services.AddScoped<INavigationReadRepository, NavigationReadRepository>();
 
         return services;
     }

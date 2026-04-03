@@ -37,15 +37,28 @@ namespace Domain.Navigation.Root
             Icon = icon;
         }
 
-        public void AddChild(string title, string url, string? requiredPermission = null)
+        public void AddChild(string title, string url, string? requiredPermission = null, string? icon = null)
         {
             // Business Rule: A menu item can only be nested 2 levels deep
-
             if (ParentId.HasValue)
                 throw new InvalidOperationException("Cannot nest items more than two levels deep.");
 
-            var child = new NavigationItem(title, url, requiredPermission);
+            var child = new NavigationItem(title, url, requiredPermission, icon);
             _children.Add(child);
+        }
+
+        public void RemoveChild(long childId)
+        {
+            var child = _children.FirstOrDefault(c => c.Id == childId);
+            if (child != null)
+            {
+                _children.Remove(child);
+            }
+        }
+
+        public bool RequiresPermission(string permission)
+        {
+            return !string.IsNullOrEmpty(RequiredPermission) && RequiredPermission == permission;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Booking.Root;
 using Domain.Devotee.Root;
+using Domain.Navigation.Root;
 using Domain.Pandit.Root;
 
 namespace Infrastructure.Database
@@ -14,6 +15,7 @@ namespace Infrastructure.Database
         DbSet<Devotee> Devotees { get; }
         DbSet<Pandit> Pandits { get; }
         DbSet<Booking> Bookings { get; }
+        DbSet<NavigationItem> NavigationItems { get; }
 
     }
 }
