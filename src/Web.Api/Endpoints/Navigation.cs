@@ -37,13 +37,13 @@ internal sealed class Navigation : IEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        app.MapGet($"{_NAVIGATIONS}, ListHandler)
+        app.MapGet($"{_NAVIGATIONS}", ListHandler)
             .WithName("ListNavigationItems")
             .WithTags(Tags.Navigation)
             .Produces<List<NavigationItemDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        app.MapPost($"{_NAVIGATIONS}, CreateHandler)
+        app.MapPost($"{_NAVIGATIONS}", CreateHandler)
             .WithName("CreateNavigationItem")
             .WithTags(Tags.Navigation)
             .Produces<long>(StatusCodes.Status201Created)
