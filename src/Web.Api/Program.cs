@@ -33,15 +33,15 @@ builder.Services
     .AddInfrastructure(builder.Configuration);
 builder.Services.AddOpenIddict()
 .AddValidation(options =>
- {
-     var servicesOptions = new ServicesOptions();
-     builder.Configuration.GetSection("Services").Bind(servicesOptions);
+{
+    var servicesOptions = new ServicesOptions();
+    builder.Configuration.GetSection("Services").Bind(servicesOptions);
 
-     options.SetIssuer(servicesOptions.Auth.BaseUrl);
+    options.SetIssuer(servicesOptions.Auth.BaseUrl);
 
-     options.UseSystemNetHttp();
-     options.UseAspNetCore();
- });
+    options.UseSystemNetHttp();
+    options.UseAspNetCore();
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -60,7 +60,7 @@ builder.Services.AddCors(options => options.AddPolicy("default", policy =>
     var servicesOptions = new ServicesOptions();
     builder.Configuration.GetSection("Services").Bind(servicesOptions);
     policy.WithOrigins(
-            
+
         servicesOptions.ReactClient.BaseUrl)
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -90,6 +90,8 @@ if (app.Environment.IsDevelopment())
     var services = scope.ServiceProvider;
     await Seeder.SeedNavigationMenuAsync(services, CancellationToken.None);
 }
+
+app.UseCors("default");
 
 app.UseAuthentication();
 app.UseAuthorization();

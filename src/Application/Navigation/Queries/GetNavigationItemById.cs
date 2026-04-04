@@ -39,7 +39,7 @@ namespace Application.Navigation.Queries
 
                 foreach (var child in item.Children)
                 {
-                    dto.Children.Add(new NavigationItemDto
+                    dto.Items.Add(new NavigationItemDto
                     {
                         Id = child.Id,
                         Title = child.Title,

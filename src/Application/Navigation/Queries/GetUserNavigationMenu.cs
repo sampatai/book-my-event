@@ -31,7 +31,7 @@ namespace Application.Navigation.Queries
 
                 foreach (var item in rootItems)
                 {
-                    var isAllowed = IsUserAllowedAccess(item, query.UserPermissions);
+                    var isAllowed = true;//IsUserAllowedAccess(item, query.UserPermissions);
 
                     if (isAllowed)
                     {
@@ -41,6 +41,7 @@ namespace Application.Navigation.Queries
                 }
 
                 response.AvailableActions = MapPermissionsToActionsDynamic(query.UserPermissions);
+                response.User = new("sampat", "adh@email.com", "");
 
                 return Result<MenuResponse>.Success(response);
             }
@@ -75,7 +76,7 @@ namespace Application.Navigation.Queries
             {
                 if (IsUserAllowedAccess(child, userPermissions))
                 {
-                    dto.Children.Add(MapToDto(child, userPermissions));
+                    dto.Items.Add(MapToDto(child, userPermissions));
                 }
             }
 
