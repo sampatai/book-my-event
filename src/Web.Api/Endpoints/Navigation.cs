@@ -11,12 +11,8 @@ namespace Web.Api.Endpoints;
 
 internal sealed class Navigation : IEndpoint
 {
-    public sealed record CreateNavigationItemRequest(
-        string Title,
-        string Url,
-        string? RequiredPermission,
-        string? Icon,
-        long? ParentId);
+
+    public const string _NAVIGATIONS = "Navigations";
 
     public sealed record UpdateNavigationItemRequest(
         string Title,
@@ -25,7 +21,7 @@ internal sealed class Navigation : IEndpoint
         string? Icon);
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("navigation/user/menu", GetUserMenuHandler)
+        app.MapGet($"{_NAVIGATIONS}/user/menu", GetUserMenuHandler)
             .WithName("GetUserNavigationMenu")
             .WithTags(Tags.Navigation)
             .Produces<MenuResponse>(StatusCodes.Status200OK)
@@ -34,20 +30,20 @@ internal sealed class Navigation : IEndpoint
             //.RequireAuthorization()
             ;
 
-        app.MapGet("navigation/{id}", GetByIdHandler)
+        app.MapGet($"{_NAVIGATIONS}/{{id}}", GetByIdHandler)
             .WithName("GetNavigationItemById")
             .WithTags(Tags.Navigation)
             .Produces<NavigationItemDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        app.MapGet("navigation", ListHandler)
+        app.MapGet($"{_NAVIGATIONS}, ListHandler)
             .WithName("ListNavigationItems")
             .WithTags(Tags.Navigation)
             .Produces<List<NavigationItemDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        app.MapPost("navigation", CreateHandler)
+        app.MapPost($"{_NAVIGATIONS}, CreateHandler)
             .WithName("CreateNavigationItem")
             .WithTags(Tags.Navigation)
             .Produces<long>(StatusCodes.Status201Created)
@@ -58,7 +54,7 @@ internal sealed class Navigation : IEndpoint
 
             ;
 
-        app.MapPut("navigation/{id}", UpdateHandler)
+        app.MapPut($"{_NAVIGATIONS}/{{id}}", UpdateHandler)
             .WithName("UpdateNavigationItem")
             .WithTags(Tags.Navigation)
             .Produces(StatusCodes.Status204NoContent)
@@ -69,7 +65,7 @@ internal sealed class Navigation : IEndpoint
             //.RequireAuthorization("navigation.edit")
             ;
 
-        app.MapDelete("navigation/{id}", DeleteHandler)
+        app.MapDelete($"{_NAVIGATIONS}/{{id}}", DeleteHandler)
             .WithName("DeleteNavigationItem")
             .WithTags(Tags.Navigation)
             .Produces(StatusCodes.Status204NoContent)
@@ -133,19 +129,13 @@ internal sealed class Navigation : IEndpoint
     }
 
     private async Task<IResult> CreateHandler(
-        CreateNavigationItemRequest request,
+        CreateNavigationItemCommand request,
         ICommandHandler<CreateNavigationItemCommand, long> handler,
         CancellationToken cancellationToken)
     {
-        var command = new CreateNavigationItemCommand {
-            Title = request.Title,
-            Url = request.Url,
-            Icon = request.Icon,
-            RequiredPermission = request.RequiredPermission,
-            ParentId = request.ParentId
-        };
+      
 
-        var result = await handler.Handle(command, cancellationToken);
+        var result = await handler.Handle(request, cancellationToken);
 
         return result.Match(
             onSuccess: id => Results.Created($"navigation/{id}", id),

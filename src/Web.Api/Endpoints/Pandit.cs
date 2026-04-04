@@ -18,10 +18,12 @@ namespace Web.Api.Endpoints.Pandits;
 
 internal sealed class PanditEndpoints : IEndpoint
 {
+    public  const string _PANDITS= "pandits";
+
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         //// Create Pandit
-        app.MapPost("pandit", async (
+        app.MapPost(_PANDITS, async (
             CreatePandit.CreatePanditCommand request,
             ICommandHandler<CreatePandit.CreatePanditCommand> handler,
             CancellationToken cancellationToken) =>
@@ -33,7 +35,7 @@ internal sealed class PanditEndpoints : IEndpoint
        // .RequireAuthorization();
 
         //// Get Pandit by Id
-        app.MapGet("pandit/{id:guid}", async (
+        app.MapGet($"{_PANDITS}/{{id:guid}}", async (
             Guid id,
             IQueryHandler<GetPandit.Query, GetPandit.Response> handler,
             CancellationToken cancellationToken) =>
@@ -47,7 +49,7 @@ internal sealed class PanditEndpoints : IEndpoint
         ;
 
         ////// List Pandits
-        app.MapGet("pandits", static async (
+        app.MapGet(_PANDITS, static async (
             [FromQuery] int pageNumber,
             [FromQuery] int pageSize,
             [FromQuery] string? searchTerm,
@@ -68,7 +70,7 @@ internal sealed class PanditEndpoints : IEndpoint
         ;
 
         //// Update Pandit
-        app.MapPut("pandit/{id:guid}", async (
+        app.MapPut($"{_PANDITS}/{{id:guid}}", async (
             Guid id,
             UpdatePandit.UpdatePanditCommand request,
             ICommandHandler<UpdatePandit.UpdatePanditCommand, UpdatePandit.UpdatePanditResponse> handler,
