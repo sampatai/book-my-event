@@ -2,6 +2,7 @@
 using Application.Abstractions.Authentication;
 using Domain.Booking.Root;
 using Domain.Devotee.Root;
+using Domain.Navigation.Root;
 using Domain.Pandit.Root;
 using Infrastructure.DomainEvents;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ public sealed class ApplicationDbContext(
     public DbSet<Devotee> Devotees => Set<Devotee>();
     public DbSet<Pandit> Pandits => Set<Pandit>();
     public DbSet<Booking> Bookings => Set<Booking>();
+
+    public DbSet<NavigationItem> NavigationItems => Set<NavigationItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

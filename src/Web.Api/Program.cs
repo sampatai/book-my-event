@@ -32,28 +32,22 @@ builder.Services
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
 builder.Services.AddOpenIddict()
-    .AddValidation(options =>
-    {
-        var servicesOptions = new ServicesOptions();
-        builder.Configuration.GetSection("Services").Bind(servicesOptions);
+.AddValidation(options =>
+{
+    var servicesOptions = new ServicesOptions();
+    builder.Configuration.GetSection("Services").Bind(servicesOptions);
 
-        // Authority (OpenIddict Server URL)
-        options.SetIssuer(servicesOptions.Auth.BaseUrl);
+    options.SetIssuer(servicesOptions.Auth.BaseUrl);
 
-        // Audience validation
-        options.AddAudiences(servicesOptions.WebApi.BaseUrl);
+    options.UseSystemNetHttp();
+    options.UseAspNetCore();
+});
 
-        // Use HTTP backchannel
-        options.UseSystemNetHttp();
-
-        // Register ASP.NET Core integration
-        options.UseAspNetCore();
-
-   
-    });
-
-builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+});
 //builder.Services.AddAuthorization(options => options.AddPolicy("ApiScope", policy =>
 //    {
 //        policy.RequireAuthenticatedUser();
@@ -66,7 +60,7 @@ builder.Services.AddCors(options => options.AddPolicy("default", policy =>
     var servicesOptions = new ServicesOptions();
     builder.Configuration.GetSection("Services").Bind(servicesOptions);
     policy.WithOrigins(
-            
+
         servicesOptions.ReactClient.BaseUrl)
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -77,7 +71,6 @@ builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
 WebApplication app = builder.Build();
 
-app.MapEndpoints();
 
 app.MapHealthChecks("health", new HealthCheckOptions {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
@@ -91,13 +84,19 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithOAuth(app.Configuration);
-
-    //app.ApplyMigrations<ApplicationDbContext>();
-    //await DbSeeder.SeedOpenIddictClientsAsync(app.Services);
+    app.UseDeveloperExceptionPage();
+    // Seed navigation data can be added here when needed
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    await Seeder.SeedNavigationMenuAsync(services, CancellationToken.None);
 }
+
+app.UseCors("default");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapEndpoints();
+
 app.MapControllers();
 
 await app.RunAsync();

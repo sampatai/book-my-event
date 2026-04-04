@@ -11,6 +11,7 @@ namespace SharedKernel.Model
         public ServiceConfig Auth { get; set; } = new ServiceConfig();
         public ServiceConfig WebApi { get; set; } = new ServiceConfig();
         public ServiceConfig ReactClient { get; set; } = new ServiceConfig();
+        public string Audience { get; set; }
     }
 
     public class ServiceConfig

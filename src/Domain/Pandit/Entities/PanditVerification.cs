@@ -15,6 +15,7 @@ namespace Domain.Common.ValueObjects
         public string DocumentPath { get; private set; }
         public string DocumentName { get; private set; }
         public bool IsVerified { get; private set; }
+        public DateTime VerifiedOn {  get; private set; }
 
         internal PanditVerification(string documentPath, string documentName)
         {
@@ -39,6 +40,10 @@ namespace Domain.Common.ValueObjects
             Guard.Against.NullOrWhiteSpace(documentName, nameof(documentName));
             DocumentPath = documentPath;
             DocumentName = documentName;
+        }
+        internal void SetVerifiedOn(DateTime verifiedOn)
+        {
+            VerifiedOn = verifiedOn;
         }
 
         protected PanditVerification()
