@@ -100,24 +100,58 @@ namespace Infrastructure.Persistence.Repository
             {
                 var query = applicationDbContext.Pandits
                      .AsNoTracking()
-                     .OrderBy(x => x.FullName)
                      .AsQueryable();
 
-                var likeSearchTerm = $"%{panditFilter.SearchTerm}%";
+                // 1. Search Filtering
+                if (!string.IsNullOrWhiteSpace(panditFilter.SearchTerm))
+                {
+                    var likeSearchTerm = $"%{panditFilter.SearchTerm}%";
+                    query = query.Where(x => EF.Functions.Like(x.FullName, likeSearchTerm) ||
+                                             EF.Functions.Like(x.Languages, likeSearchTerm) ||
+                                             EF.Functions.Like(x.Address.AddressLine1, likeSearchTerm) ||
+                                             EF.Functions.Like(x.Address.State!, likeSearchTerm) ||
+                                             EF.Functions.Like(x.Address.Street!, likeSearchTerm));
+                }
 
-                query = query.Where(x => EF.Functions.Like(x.FullName, likeSearchTerm) ||
-                                         EF.Functions.Like(x.Languages, likeSearchTerm) ||
-                                         EF.Functions.Like(x.Address.AddressLine1, likeSearchTerm) ||
-                                         EF.Functions.Like(x.Address.State!, likeSearchTerm) ||
-                                         EF.Functions.Like(x.Address.Street!, likeSearchTerm)
+                // 2. Specific 'VerificationState' Filter
+                if (panditFilter.Filters?.VerificationState != null)
+                {
+                    // EF handles null navigation prop if VerificationState is a related entity or value object
+                    query = query.Where(x => x.VerificationState != null && 
+                                             x.VerificationState.Name == panditFilter.Filters.VerificationState);
+                }
 
-                                         );
+                // 3. Dynamic Sorting
+                if (!string.IsNullOrWhiteSpace(panditFilter.SortBy))
+                {
+                    query = panditFilter.SortBy.ToLower() switch
+                    {
+                        "verificationstate" => panditFilter.IsDescending 
+                            ? query.OrderByDescending(x => x.VerificationState!.Name) 
+                            : query.OrderBy(x => x.VerificationState!.Name),
 
+                        "fullname" => panditFilter.IsDescending 
+                            ? query.OrderByDescending(x => x.FullName) 
+                            : query.OrderBy(x => x.FullName),
+
+                        _ => panditFilter.IsDescending 
+                            ? query.OrderByDescending(x => x.PanditId) 
+                            : query.OrderBy(x => x.PanditId)
+                    };
+                }
+                else
+                {
+                    // Fallback sorting
+                    query = query.OrderBy(x => x.FullName);
+                }
+
+                // 4. Counts
                 int totalRecords = await query.CountAsync(cancellationToken);
 
+                // 5. Pagination
                 var results = await query
-                    .Skip((panditFilter.PageNumber - 1) * panditFilter.PageNumber)
-                    .Take(panditFilter.PageNumber)
+                    .Skip((panditFilter.PageNumber - 1) * panditFilter.PageSize) // Fixed skip multiplier and PageSize here
+                    .Take(panditFilter.PageSize) // Fixed using PageSize vs PageNumber
                     .ToListAsync(cancellationToken);
 
                 return (results, totalRecords);

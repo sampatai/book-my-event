@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Abstractions.Messaging;
 using Application.Command;
 using Application.Model;
+using Application.Navigation.Dtos;
 using Application.Query.Pandit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace Web.Api.Endpoints.Pandits;
 
 internal sealed class PanditEndpoints : IEndpoint
 {
-    public  const string _PANDITS= "pandits";
+    public const string _PANDITS = "pandits";
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
@@ -31,9 +32,13 @@ internal sealed class PanditEndpoints : IEndpoint
             var result = await handler.Handle(request, cancellationToken);
             return result.Match(Results.Created, CustomResults.Problem);
         })
-        .WithTags(Tags.Pandit);
-       // .RequireAuthorization();
-
+        .WithTags(Tags.Pandit)
+        .Produces<Result>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+       // .RequireAuthorization()
+       ;
         //// Get Pandit by Id
         app.MapGet($"{_PANDITS}/{{id:guid}}", async (
             Guid id,
@@ -45,28 +50,26 @@ internal sealed class PanditEndpoints : IEndpoint
             return result.Match(Results.Ok, CustomResults.Problem);
         })
         .WithTags(Tags.Pandit)
+        .Produces<GetPandit.Response>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
         //.RequireAuthorization()
         ;
 
         ////// List Pandits
         app.MapGet(_PANDITS, static async (
-            [FromQuery] int pageNumber,
-            [FromQuery] int pageSize,
-            [FromQuery] string? searchTerm,
+            [AsParameters] PanditFilter filter,
             IQueryHandler<ListPandit.Query, ListPanditResponse> handler,
             CancellationToken cancellationToken) =>
         {
-            var filter = new PanditFilter(
-                pageNumber,
-                pageSize,
-                searchTerm ?? ""
-            );
-
             var result = await handler.Handle(new ListPandit.Query(filter), cancellationToken);
             return result.Match(Results.Ok, CustomResults.Problem);
         })
         .WithTags(Tags.Pandit)
-      // .RequireAuthorization()
+
+        .Produces<Result<ListPandit.ListPanditResponse>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
+        // .RequireAuthorization()
         ;
 
         //// Update Pandit
@@ -82,6 +85,11 @@ internal sealed class PanditEndpoints : IEndpoint
             return result.Match(Results.Ok, CustomResults.Problem);
         })
         .WithTags(Tags.Pandit)
+        .Produces<Result>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
         //.RequireAuthorization()
         ;
 
