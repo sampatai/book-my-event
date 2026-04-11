@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Application.Model
 {
-    public record PanditSpecificFilters
+    public record PanditFilter : FilterBase
     {
         public string? VerificationState { get; init; }
     }
-
-    public record PanditFilter : FilterBase<PanditSpecificFilters>;
 }

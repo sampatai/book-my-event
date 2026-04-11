@@ -14,9 +14,4 @@ namespace Application.Model
 
         public bool IsDescending => SortDirection?.Equals("desc", StringComparison.OrdinalIgnoreCase) == true;
     }
-
-    public record FilterBase<TFilters> : FilterBase
-    {
-        public TFilters? Filters { get; init; }
-    }
 }

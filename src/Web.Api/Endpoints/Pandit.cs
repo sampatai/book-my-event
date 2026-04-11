@@ -51,10 +51,10 @@ internal sealed class PanditEndpoints : IEndpoint
         })
         .WithTags(Tags.Pandit)
         .Produces<GetPandit.Response>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status404NotFound) 
         .ProducesProblem(StatusCodes.Status401Unauthorized);
         //.RequireAuthorization()
-        ;
+        
 
         ////// List Pandits
         app.MapGet(_PANDITS, static async (
@@ -70,7 +70,7 @@ internal sealed class PanditEndpoints : IEndpoint
         .Produces<Result<ListPandit.ListPanditResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
         // .RequireAuthorization()
-        ;
+        
 
         //// Update Pandit
         app.MapPut($"{_PANDITS}/{{id:guid}}", async (

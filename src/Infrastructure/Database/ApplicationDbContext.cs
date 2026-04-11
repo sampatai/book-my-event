@@ -69,7 +69,7 @@ public sealed class ApplicationDbContext(
     }
     private void UpdateAuditableEntities()
     {
-        var user = userContext.UserId;
+        var user = 1;//userContext.UserId;
         IEnumerable<EntityEntry> entries = ChangeTracker
             .Entries()
             .Where(e => e.Entity is AuditableEntity &&

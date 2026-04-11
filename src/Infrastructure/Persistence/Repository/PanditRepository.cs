@@ -114,11 +114,11 @@ namespace Infrastructure.Persistence.Repository
                 }
 
                 // 2. Specific 'VerificationState' Filter
-                if (panditFilter.Filters?.VerificationState != null)
+                if (panditFilter.VerificationState != null)
                 {
                     // EF handles null navigation prop if VerificationState is a related entity or value object
                     query = query.Where(x => x.VerificationState != null && 
-                                             x.VerificationState.Name == panditFilter.Filters.VerificationState);
+                                             x.VerificationState.Name == panditFilter.VerificationState);
                 }
 
                 // 3. Dynamic Sorting

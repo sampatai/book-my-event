@@ -8,5 +8,6 @@ namespace Application.Model
     {
         public IEnumerable<T> Records { get; init; }
         public int TotalRecords { get; init; }
+        public int PageNumber{get; init;}
     }
 }
