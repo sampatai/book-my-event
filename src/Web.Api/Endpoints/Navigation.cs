@@ -27,7 +27,7 @@ internal sealed class Navigation : IEndpoint
             .Produces<MenuResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            //.RequireAuthorization()
+            .RequireAuthorization()
             ;
 
         app.MapGet($"{_NAVIGATIONS}/{{id}}", GetByIdHandler)

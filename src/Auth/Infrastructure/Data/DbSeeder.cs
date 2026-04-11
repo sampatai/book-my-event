@@ -31,6 +31,7 @@ namespace Auth.Infrastructure.Database.Seed
             var servicesOptions = new ServicesOptions();
             _configuration.GetSection("Services").Bind(servicesOptions);
             string webApiScope = Permissions.Prefixes.Scope + "web-api";
+            string reactScope = Permissions.Prefixes.Scope + "react-app";
 
             var clientId = "web-api";
 
@@ -60,35 +61,38 @@ namespace Auth.Infrastructure.Database.Seed
             }
 
             clientId = "react-client";
-            if (await manager.FindByClientIdAsync(clientId, cancellationToken) == null)
-            {
-                await manager.CreateAsync(new OpenIddictApplicationDescriptor {
-                    ClientId = clientId,
-                    DisplayName = "React client",
-                    RedirectUris =
-                    {
-                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/signin-oidc")
+            var reactClient = await manager.FindByClientIdAsync(clientId, cancellationToken);
+            var reactDescriptor = new OpenIddictApplicationDescriptor {
+                ClientId = clientId,
+                DisplayName = "React client",
+                RedirectUris =
+                {
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/signin-oidc"),
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/callback"),
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/") // Common for basic React setups
                 },
-                    PostLogoutRedirectUris =
-                    {
-                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/signout-callback-oidc")
+                PostLogoutRedirectUris =
+                {
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/signout-callback-oidc"),
+                    new Uri($"{servicesOptions.ReactClient.BaseUrl}/")
                 },
-                    Permissions =
-                    {
+                Permissions =
+                {
                     Permissions.Endpoints.Authorization,
                     Permissions.Endpoints.Token,
                     Permissions.GrantTypes.AuthorizationCode,
                     Permissions.GrantTypes.RefreshToken,
                     Permissions.ResponseTypes.Code,
-                    Scopes.OpenId,
-                    Scopes.OfflineAccess,
-                    Permissions.Scopes.Email,
-                    Permissions.Scopes.Profile,
-                    Permissions.Scopes.Roles,
-                    webApiScope
+                  
+                    Permissions.Prefixes.Scope + "react-app"
                 }
-                }, cancellationToken);
+            };
+
+            if (reactClient == null)
+            {
+                await manager.CreateAsync(reactDescriptor, cancellationToken);
             }
+            
             // Seed ServiceEntity
             if (!await db.TenantEntities.AnyAsync(cancellationToken: cancellationToken))
             {
@@ -120,14 +124,14 @@ namespace Auth.Infrastructure.Database.Seed
 
                 // Seed User linked to ServiceEntity
                 var user = new User(
-                  
+
                    email: "admin@example.com",
                    phoneNumber: "+1234567890"
                 );
 
 
                 user.EmailConfirmed = true;
-                
+
 
                 // Optionally set the ServiceEntityId if you have one
                 user.SetServiceEntityId(serviceEntityId: serviceEntity.Id);
@@ -149,7 +153,7 @@ namespace Auth.Infrastructure.Database.Seed
                     {
                         new Claim("custom_claim", "custom_value"),
                         new Claim("globaluserclaim", "global_value"),
-                        
+
                     };
                     await userManager.AddClaimsAsync(user, claims);
                 }

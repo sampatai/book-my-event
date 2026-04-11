@@ -160,7 +160,7 @@ namespace Auth.Areas.Identity.Pages.Account
         {
             try
             {
-                return Activator.CreateInstance<User>();
+                return (User)Activator.CreateInstance(typeof(User), nonPublic: true);
             }
             catch
             {

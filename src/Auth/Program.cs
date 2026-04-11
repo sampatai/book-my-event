@@ -50,8 +50,8 @@ builder.Services.AddOpenIddict()
                        .SetTokenEndpointUris("connect/token")
                        .SetUserInfoEndpointUris("connect/userinfo");
 
-                // Mark the "email", "profile" and "roles" scopes as supported scopes.
-                options.RegisterScopes("web-api");
+                // Mark the "email", "profile" and "roles" scopes as supported scopes along with custom scopes.
+                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles, "web-api", "react-app");
 
                 // Note: the sample uses the code and refresh token flows but you can enable
                 // the other flows if you need to support implicit, password or client credentials.
@@ -83,7 +83,8 @@ builder.Services.AddCors(options => options.AddPolicy("default", policy =>
                 servicesOptions.WebApi.BaseUrl,
                 servicesOptions.ReactClient.BaseUrl)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     }));
 
 

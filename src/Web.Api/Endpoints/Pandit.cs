@@ -37,7 +37,7 @@ internal sealed class PanditEndpoints : IEndpoint
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status401Unauthorized)
         .ProducesProblem(StatusCodes.Status409Conflict)
-       // .RequireAuthorization()
+        .RequireAuthorization()
        ;
         //// Get Pandit by Id
         app.MapGet($"{_PANDITS}/{{id:guid}}", async (
@@ -51,10 +51,10 @@ internal sealed class PanditEndpoints : IEndpoint
         })
         .WithTags(Tags.Pandit)
         .Produces<GetPandit.Response>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status404NotFound) 
-        .ProducesProblem(StatusCodes.Status401Unauthorized);
-        //.RequireAuthorization()
-        
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .RequireAuthorization();
+
 
         ////// List Pandits
         app.MapGet(_PANDITS, static async (
@@ -68,8 +68,8 @@ internal sealed class PanditEndpoints : IEndpoint
         .WithTags(Tags.Pandit)
 
         .Produces<Result<ListPandit.ListPanditResponse>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status401Unauthorized);
-        // .RequireAuthorization()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .RequireAuthorization();
         
 
         //// Update Pandit
@@ -90,7 +90,7 @@ internal sealed class PanditEndpoints : IEndpoint
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-        //.RequireAuthorization()
+        .RequireAuthorization()
         ;
 
 
