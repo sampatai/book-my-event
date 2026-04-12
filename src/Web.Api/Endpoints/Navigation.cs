@@ -13,7 +13,7 @@ namespace Web.Api.Endpoints;
 internal sealed class Navigation : IEndpoint
 {
 
-    public const string _NAVIGATIONS = "Navigations";
+    public const string _NAVIGATIONS = "navigations";
 
     public sealed record UpdateNavigationItemRequest(
         string Title,
