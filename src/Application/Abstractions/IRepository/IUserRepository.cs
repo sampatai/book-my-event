@@ -18,7 +18,7 @@ public interface IUserRepository
 
     Task<Result> SetClaimsAsync(long userId, IReadOnlyCollection<UserClaimDto> claims, CancellationToken cancellationToken);
 
-    Task<Result<IReadOnlyList<string>>> GetPermissionsAsync(long userId, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<string>>> GetPermissionsAsync(Guid userGuidId, CancellationToken cancellationToken);
 
-    Task<Result> SetPermissionsAsync(long userId, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken);
+    Task<Result> SetPermissionsAsync(Guid userGuidId, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken);
 }

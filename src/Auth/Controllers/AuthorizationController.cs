@@ -138,6 +138,7 @@ public class AuthorizationController : Controller
                         .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
                         .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
                         .SetClaim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user))
+                        .SetClaim("user_id", user.UserId.ToString())
                         .SetClaims(Claims.Role, [.. (await _userManager.GetRolesAsync(user))]);
 
                 // Note: in this sample, the granted scopes match the requested scope
@@ -230,6 +231,7 @@ public class AuthorizationController : Controller
                 .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
                 .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
                 .SetClaim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user))
+                .SetClaim("user_id", user.UserId.ToString())
                 .SetClaims(Claims.Role, [.. (await _userManager.GetRolesAsync(user))]);
 
         // Note: in this sample, the granted scopes match the requested scope

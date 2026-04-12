@@ -4,7 +4,7 @@ namespace Application.Users.Queries;
 
 public static class GetUserPermissions
 {
-    public sealed record Query(long UserId) : IQuery<IReadOnlyList<string>>;
+    public sealed record Query(Guid UserId) : IQuery<IReadOnlyList<string>>;
 
     public sealed class Handler(IUserRepository userRepository) : IQueryHandler<Query, IReadOnlyList<string>>
     {

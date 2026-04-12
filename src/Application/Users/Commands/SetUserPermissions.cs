@@ -4,7 +4,7 @@ namespace Application.Users.Commands;
 
 public static class SetUserPermissions
 {
-    public sealed record Command(long UserId, IReadOnlyCollection<string> Permissions) : ICommand;
+    public sealed record Command(Guid UserId, IReadOnlyCollection<string> Permissions) : ICommand;
 
     public sealed class Handler(IUserRepository userRepository) : ICommandHandler<Command>
     {

@@ -82,18 +82,20 @@ internal sealed class Navigation : IEndpoint
         IQueryHandler<GetUserPermissions.Query, IReadOnlyList<string>> permissionsHandler,
         CancellationToken cancellationToken)
     {
-        var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim is null || !long.TryParse(userIdClaim.Value, out var userId))
+        var userIdClaim = httpContext.User.FindFirst("user_id");
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim.Value, out var userGuidId))
         {
             return Results.Unauthorized();
         }
 
-        var permissionsResult = await permissionsHandler.Handle(new GetUserPermissions.Query(userId), cancellationToken);
+        var permissionsResult = await permissionsHandler.Handle(new GetUserPermissions.Query(userGuidId), cancellationToken);
 
         if (permissionsResult.IsFailure)
         {
             return CustomResults.Problem(permissionsResult);
         }
+
+        long.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
 
         var query = new GetUserNavigationMenu {
             UserId = userId,

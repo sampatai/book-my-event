@@ -2,11 +2,11 @@
 using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.IRepository;
-using Auth.Infrastructure.Data;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.DomainEvents;
+using Infrastructure.Identity;
 using Infrastructure.Persistence.Repository;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -77,6 +77,11 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         string? connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+        }
 
         services.AddDbContext<AuthenticationDbContext>(
             options => options

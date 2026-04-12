@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Application.Abstractions.IRepository;
 using Application.Users;
-using Auth.Infrastructure.Data;
 using Domain.Users.Root;
+using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +13,15 @@ internal sealed class UserRepository(
     AuthenticationDbContext authenticationDbContext,
     ILogger<UserRepository> logger) : IUserRepository
 {
+    private async Task<long?> ResolveInternalUserIdAsync(Guid userGuidId, CancellationToken cancellationToken)
+    {
+        return await userManager.Users
+            .AsNoTracking()
+            .Where(x => x.UserId == userGuidId)
+            .Select(x => (long?)x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<Result<long>> CreateAsync(string email, string? phoneNumber, string password, CancellationToken cancellationToken)
     {
         try
@@ -177,8 +186,17 @@ internal sealed class UserRepository(
         return Result.Success();
     }
 
-    public async Task<Result<IReadOnlyList<string>>> GetPermissionsAsync(long userId, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<string>>> GetPermissionsAsync(Guid userGuidId, CancellationToken cancellationToken)
     {
+        long? resolvedUserId = await ResolveInternalUserIdAsync(userGuidId, cancellationToken);
+
+        if (!resolvedUserId.HasValue)
+        {
+            return Result.Failure<IReadOnlyList<string>>(UserManagementErrors.NotFound(0));
+        }
+
+        long userId = resolvedUserId.Value;
+
         User? user = await userManager.FindByIdAsync(userId.ToString());
         if (user is null)
         {
@@ -210,8 +228,19 @@ internal sealed class UserRepository(
         return Result.Success(permissions);
     }
 
-    public async Task<Result> SetPermissionsAsync(long userId, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken)
+    public async Task<Result> SetPermissionsAsync(Guid userGuidId, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken)
     {
+        long userId = await userManager.Users
+            .AsNoTracking()
+            .Where(x => x.UserId == userGuidId)
+            .Select(x => x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (userId == 0)
+        {
+            return Result.Failure(UserManagementErrors.NotFound(0));
+        }
+
         User? user = await userManager.FindByIdAsync(userId.ToString());
         if (user is null)
         {
@@ -238,8 +267,7 @@ internal sealed class UserRepository(
             .SelectMany(roleId => permissions
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct()
-            .Select(x => new IdentityRoleClaim<long>
-            {
+            .Select(x => new IdentityRoleClaim<long> {
                 RoleId = roleId,
                 ClaimType = "permission",
                 ClaimValue = x

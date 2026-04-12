@@ -96,8 +96,8 @@ internal sealed class Users : IEndpoint
         .WithTags(Tags.Users)
         .RequireAuthorization();
 
-        app.MapGet($"{Route}/{{id:long}}/permissions", async (
-            long id,
+        app.MapGet($"{Route}/{{id:guid}}/permissions", async (
+            Guid id,
             IQueryHandler<GetUserPermissions.Query, IReadOnlyList<string>> handler,
             CancellationToken cancellationToken) =>
         {
@@ -107,8 +107,8 @@ internal sealed class Users : IEndpoint
         .WithTags(Tags.Users)
         .RequireAuthorization();
 
-        app.MapPut($"{Route}/{{id:long}}/permissions", async (
-            long id,
+        app.MapPut($"{Route}/{{id:guid}}/permissions", async (
+            Guid id,
             SetPermissionsRequest request,
             ICommandHandler<SetUserPermissions.Command> handler,
             CancellationToken cancellationToken) =>

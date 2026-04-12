@@ -1,4 +1,4 @@
-﻿using Auth.Infrastructure.Data;
+﻿using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Authorization;
