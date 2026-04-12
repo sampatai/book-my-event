@@ -1,6 +1,7 @@
 using Application.Navigation.Commands;
 using Application.Navigation.Queries;
 using Application.Navigation.Dtos;
+using Application.Users.Queries;
 using SharedKernel;
 using System.Security.Claims;
 using Web.Api.Extensions;
@@ -78,22 +79,25 @@ internal sealed class Navigation : IEndpoint
     private async Task<IResult> GetUserMenuHandler(
         HttpContext httpContext,
         IQueryHandler<GetUserNavigationMenu, MenuResponse> handler,
+        IQueryHandler<GetUserPermissions.Query, IReadOnlyList<string>> permissionsHandler,
         CancellationToken cancellationToken)
     {
         var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-        //if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out var userId))
-        //{
-        //    return Results.Unauthorized();
-        //}
+        if (userIdClaim is null || !long.TryParse(userIdClaim.Value, out var userId))
+        {
+            return Results.Unauthorized();
+        }
 
-        var userPermissions = httpContext.User
-            .FindAll("permission")
-            .Select(c => c.Value)
-            .ToList();
+        var permissionsResult = await permissionsHandler.Handle(new GetUserPermissions.Query(userId), cancellationToken);
+
+        if (permissionsResult.IsFailure)
+        {
+            return CustomResults.Problem(permissionsResult);
+        }
 
         var query = new GetUserNavigationMenu {
-            UserId = Random.Shared.NextInt64(),
-            UserPermissions = userPermissions
+            UserId = userId,
+            UserPermissions = permissionsResult.Value.ToList()
         };
 
         var result = await handler.Handle(query, cancellationToken);

@@ -1,6 +1,6 @@
-﻿using Auth.Domain.Users.Root;
-using Auth.Infrastructure.Data;
+﻿using Auth.Infrastructure.Data;
 using Auth.Infrastructure.Database;
+using Domain.Users.Root;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;

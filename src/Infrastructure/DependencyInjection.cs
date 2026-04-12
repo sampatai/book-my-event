@@ -2,6 +2,7 @@
 using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.IRepository;
+using Auth.Infrastructure.Data;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
@@ -75,7 +76,20 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        
+        string? connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        services.AddDbContext<AuthenticationDbContext>(
+            options => options
+                .UseNpgsql(connectionString)
+                .UseSnakeCaseNamingConvention());
+
+        services.AddIdentityCore<Domain.Users.Root.User>()
+            .AddRoles<IdentityRole<long>>()
+            .AddEntityFrameworkStores<AuthenticationDbContext>()
+            .AddSignInManager<SignInManager<Domain.Users.Root.User>>()
+            .AddUserManager<UserManager<Domain.Users.Root.User>>()
+            .AddDefaultTokenProviders();
+
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -98,6 +112,7 @@ public static class DependencyInjection
 
         services.AddScoped<IPanditRepository, PanditRepository>();
         services.AddScoped<IPanditReadRepository, PanditReadRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         
         // Add Navigation repositories
         services.AddScoped<INavigationRepository, NavigationRepository>();

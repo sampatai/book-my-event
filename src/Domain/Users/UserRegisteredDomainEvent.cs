@@ -1,5 +1,5 @@
-﻿using SharedKernel;
+using SharedKernel;
 
-namespace Auth.Domain.Users;
+namespace Domain.Users;
 
 public sealed record UserRegisteredDomainEvent(long UserId) : IDomainEvent;

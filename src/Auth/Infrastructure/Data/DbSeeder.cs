@@ -5,9 +5,9 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Auth.Domain.TenantEntity.Root;
-using Auth.Domain.Users.Root;
 using Auth.Domain.ValueObjects;
 using Auth.Infrastructure.Data;
+using Domain.Users.Root;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -143,6 +143,16 @@ namespace Auth.Infrastructure.Database.Seed
                     if (!await roleManager.RoleExistsAsync(adminRole))
                     {
                         await roleManager.CreateAsync(new IdentityRole<long>(adminRole));
+                    }
+
+                    var role = await roleManager.FindByNameAsync(adminRole);
+                    if (role is not null)
+                    {
+                        var existingRoleClaims = await roleManager.GetClaimsAsync(role);
+                        if (!existingRoleClaims.Any(c => c.Type == "permission" && c.Value == "admin"))
+                        {
+                            await roleManager.AddClaimAsync(role, new Claim("permission", "admin"));
+                        }
                     }
 
                     // Assign user to Administrator role

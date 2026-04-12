@@ -1,6 +1,6 @@
 ﻿using Auth.Domain.TenantEntity.Root;
-using Auth.Domain.Users.Root;
 using Auth.Infrastructure.Database;
+using Domain.Users.Root;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

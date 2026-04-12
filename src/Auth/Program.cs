@@ -9,7 +9,7 @@ using Quartz;
 using SharedKernel.Model;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using Microsoft.AspNetCore.Identity;
-using Auth.Domain.Users.Root;
+using Domain.Users.Root;
 
 var builder = WebApplication.CreateBuilder(args);
 

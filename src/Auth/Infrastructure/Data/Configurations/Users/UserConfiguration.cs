@@ -1,6 +1,6 @@
 ﻿using System.Reflection.Emit;
 using Auth.Domain.TenantEntity.Root;
-using Auth.Domain.Users.Root;
+using Domain.Users.Root;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SharedKernel;

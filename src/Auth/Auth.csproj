@@ -40,10 +40,12 @@
   <ItemGroup>
 	  
     <Folder Include="Application\" />
-    <Folder Include="Domain\Users\ValueObjects\" />
+	  
+    <Folder Include="Domain\Users\" />
   </ItemGroup>
 
   <ItemGroup>
+  <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 

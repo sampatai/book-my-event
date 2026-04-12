@@ -1,6 +1,6 @@
 ﻿
 using System.Security.Claims;
-using Auth.Domain.Users.Root;
+using Domain.Users.Root;
 using Auth.Helpers;
 
 using Auth.ViewModels.Authorization;

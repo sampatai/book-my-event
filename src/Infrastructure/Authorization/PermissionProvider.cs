@@ -1,12 +1,37 @@
-﻿namespace Infrastructure.Authorization;
+﻿using Auth.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-internal sealed class PermissionProvider
+namespace Infrastructure.Authorization;
+
+internal sealed class PermissionProvider(AuthenticationDbContext authenticationDbContext)
 {
-    public Task<HashSet<string>> GetForUserIdAsync(long userId)
+    public async Task<HashSet<string>> GetForRoleNamesAsync(IReadOnlyCollection<string> roleNames)
     {
-        // TODO: Here you'll implement your logic to fetch permissions.
-        HashSet<string> permissionsSet = [];
+        if (roleNames.Count == 0)
+        {
+            return [];
+        }
 
-        return Task.FromResult(permissionsSet);
+        List<string> normalizedRoleNames = roleNames
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.ToUpperInvariant())
+            .Distinct()
+            .ToList();
+
+        List<long> roleIds = await authenticationDbContext.Roles
+            .AsNoTracking()
+            .Where(x => normalizedRoleNames.Contains(x.NormalizedName!))
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        List<string> rolePermissions = await authenticationDbContext.RoleClaims
+            .AsNoTracking()
+            .Where(x => roleIds.Contains(x.RoleId) && x.ClaimType == "permission")
+            .Select(x => x.ClaimValue!)
+            .ToListAsync();
+
+        HashSet<string> permissionsSet = [.. rolePermissions];
+
+        return permissionsSet;
     }
 }

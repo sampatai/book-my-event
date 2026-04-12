@@ -1,6 +1,8 @@
 ﻿using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using OpenIddict.Abstractions;
+using System.Security.Claims;
 
 namespace Infrastructure.Authorization;
 
@@ -11,12 +13,8 @@ internal sealed class PermissionAuthorizationHandler(IServiceScopeFactory servic
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        // TODO: You definitely want to reject unauthenticated users here.
-        if (context.User is { Identity.IsAuthenticated: true })
+        if (context.User.Identity?.IsAuthenticated != true)
         {
-            // TODO: Remove this call when you implement the PermissionProvider.GetForUserIdAsync
-            context.Succeed(requirement);
-
             return;
         }
 
@@ -24,11 +22,24 @@ internal sealed class PermissionAuthorizationHandler(IServiceScopeFactory servic
 
         PermissionProvider permissionProvider = scope.ServiceProvider.GetRequiredService<PermissionProvider>();
 
-        long userId = context.User.GetUserId();
+        HashSet<string> directPermissions = context.User
+            .FindAll("permission")
+            .Select(x => x.Value)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        HashSet<string> permissions = await permissionProvider.GetForUserIdAsync(userId);
+        List<string> roleNames = context.User
+            .FindAll(OpenIddictConstants.Claims.Role)
+            .Concat(context.User.FindAll(ClaimTypes.Role))
+            .Select(x => x.Value)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
-        if (permissions.Contains(requirement.Permission))
+        HashSet<string> rolePermissions = await permissionProvider.GetForRoleNamesAsync(roleNames);
+
+        HashSet<string> permissions = [.. directPermissions, .. rolePermissions];
+
+        if (permissions.Contains(requirement.Permission) || permissions.Contains("admin"))
         {
             context.Succeed(requirement);
         }
