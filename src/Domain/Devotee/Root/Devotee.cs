@@ -18,6 +18,7 @@ public class Devotee : AuditableEntity, IAggregateRoot
     public Guid DevoteeId { get; private set; }
 
     public long UserId { get; private set; }
+    public long PanditId { get; private set; }
 
     public string FullName { get; private set; }
 
