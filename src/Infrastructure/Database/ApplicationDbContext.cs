@@ -4,6 +4,7 @@ using Domain.Booking.Root;
 using Domain.Devotee.Root;
 using Domain.Navigation.Root;
 using Domain.Pandit.Root;
+using Domain.Users.Root;
 using Infrastructure.DomainEvents;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel;
@@ -14,7 +15,7 @@ public sealed class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
     IDomainEventsDispatcher domainEventsDispatcher,
     IUserContext userContext)
-    : DbContext(options), IUnitOfWork, IApplicationDbContext
+    : IdentityDbContext<User, IdentityRole<long>, long>(options), IUnitOfWork, IApplicationDbContext
 {
 
     public DbSet<Devotee> Devotees => Set<Devotee>();
@@ -26,8 +27,10 @@ public sealed class ApplicationDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
+        modelBuilder.UseOpenIddict();
         modelBuilder.HasDefaultSchema(Schemas.Default);
+            base.OnModelCreating(modelBuilder);
+
     }
 
     public  async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
@@ -69,7 +72,7 @@ public sealed class ApplicationDbContext(
     }
     private void UpdateAuditableEntities()
     {
-        var user = 1;//userContext.UserId;
+        var user = userContext.UserId;
         IEnumerable<EntityEntry> entries = ChangeTracker
             .Entries()
             .Where(e => e.Entity is AuditableEntity &&

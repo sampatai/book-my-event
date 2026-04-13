@@ -10,7 +10,6 @@ public class User : IdentityUser<long>, IAggregateRoot
     }
 
     public Guid UserId { get; private set; }
-    public long? ServiceEntityId { get; private set; }
 
     public User(
         string email,
@@ -22,8 +21,5 @@ public class User : IdentityUser<long>, IAggregateRoot
         UserId = Guid.NewGuid();
     }
 
-    public void SetServiceEntityId(long serviceEntityId)
-    {
-        ServiceEntityId = serviceEntityId;
-    }
+    
 }

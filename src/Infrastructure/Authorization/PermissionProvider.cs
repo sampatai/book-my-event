@@ -1,9 +1,9 @@
-﻿using Infrastructure.Identity;
+﻿using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Authorization;
 
-internal sealed class PermissionProvider(AuthenticationDbContext authenticationDbContext)
+internal sealed class PermissionProvider(ApplicationDbContext authenticationDbContext)
 {
     public async Task<HashSet<string>> GetForRoleNamesAsync(IReadOnlyCollection<string> roleNames)
     {

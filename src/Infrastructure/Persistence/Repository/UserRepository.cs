@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Application.Abstractions.IRepository;
 using Application.Users;
 using Domain.Users.Root;
-using Infrastructure.Identity;
+using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence.Repository;
 
 internal sealed class UserRepository(
     UserManager<User> userManager,
-    AuthenticationDbContext authenticationDbContext,
+    ApplicationDbContext authenticationDbContext,
     ILogger<UserRepository> logger) : IUserRepository
 {
     private async Task<long?> ResolveInternalUserIdAsync(Guid userGuidId, CancellationToken cancellationToken)
@@ -57,10 +57,7 @@ internal sealed class UserRepository(
             user.UserName = email;
             user.PhoneNumber = phoneNumber;
 
-            if (serviceEntityId.HasValue)
-            {
-                user.SetServiceEntityId(serviceEntityId.Value);
-            }
+           
 
             IdentityResult result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -112,8 +109,8 @@ internal sealed class UserRepository(
                 x.UserId,
                 x.Email,
                 x.UserName,
-                x.PhoneNumber,
-                x.ServiceEntityId))
+                x.PhoneNumber
+               ))
             .FirstOrDefaultAsync(cancellationToken);
 
         return user is null
@@ -131,8 +128,7 @@ internal sealed class UserRepository(
                 x.UserId,
                 x.Email,
                 x.UserName,
-                x.PhoneNumber,
-                x.ServiceEntityId))
+                x.PhoneNumber))
             .ToListAsync(cancellationToken);
 
         return Result.Success(users);

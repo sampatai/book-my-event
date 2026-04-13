@@ -2,20 +2,33 @@
 @using Microsoft.Extensions.Primitives
 @model AuthorizeViewModel
 
-<div class="jumbotron">
-    <h1>Authorization</h1>
+<div class="mx-auto flex min-h-[70vh] w-full max-w-md items-center justify-center px-4">
+    <section class="w-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div class="mb-5 space-y-1">
+            <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Authorize access</h1>
+            <p class="text-sm text-slate-500">
+                <span class="font-medium text-slate-700">@Model.ApplicationName</span> is requesting permission to access your account.
+            </p>
+        </div>
 
-    <p class="lead text-left">Do you want to grant <strong>@Model.ApplicationName</strong> access to your data? (scopes requested: @Model.Scope)</p>
+        <div class="mb-6 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+            <span class="font-medium text-slate-700">Requested scopes:</span>
+            <span>@Model.Scope</span>
+        </div>
 
-    <form asp-controller="Authorization" asp-action="Authorize" method="post">
-        @* Flow the request parameters so they can be received by the Accept/Reject actions: *@
-        @foreach (var parameter in Context.Request.HasFormContentType ?
-            (IEnumerable<KeyValuePair<string, StringValues>>) Context.Request.Form : Context.Request.Query)
-        {
-            <input type="hidden" name="@parameter.Key" value="@parameter.Value" />
-        }
+        <form asp-controller="Authorization" asp-action="Authorize" method="post" class="space-y-3">
+            @foreach (var parameter in Context.Request.HasFormContentType ?
+                (IEnumerable<KeyValuePair<string, StringValues>>) Context.Request.Form : Context.Request.Query)
+            {
+                <input type="hidden" name="@parameter.Key" value="@parameter.Value" />
+            }
 
-        <input class="btn btn-lg btn-success" name="submit.Accept" type="submit" value="Yes" />
-        <input class="btn btn-lg btn-danger" name="submit.Deny" type="submit" value="No" />
-    </form>
+            <button class="inline-flex h-10 w-full items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800" name="submit.Accept" type="submit">
+                Continue
+            </button>
+            <button class="inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50" name="submit.Deny" type="submit">
+                Cancel
+            </button>
+        </form>
+    </section>
 </div>

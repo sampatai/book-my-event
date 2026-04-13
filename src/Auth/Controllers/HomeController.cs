@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Auth.ViewModels.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -14,12 +15,14 @@ public class HomeController : Controller
         _logger = logger;
     }
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Index()
     {
         _logger.LogInformation("Index action was called.");
         return View();
     }
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Privacy()
     {
         _logger.LogInformation("Privacy action was called.");

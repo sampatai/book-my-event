@@ -9,36 +9,53 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Auth.styles.css" asp-append-version="true" />
 </head>
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var page = ViewContext.RouteData.Values["page"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var isLoginPage = string.Equals(area, "Identity", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(page, "/Account/Login", StringComparison.OrdinalIgnoreCase);
+    var isAuthorizePage = string.Equals(controller, "Authorization", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(action, "Authorize", StringComparison.OrdinalIgnoreCase);
+    var isStandaloneAuthPage = isLoginPage || isAuthorizePage;
+}
 <body class="bg-slate-50 text-slate-900">
-    <header>
-        <nav class="border-b border-slate-200 bg-white">
-            <div class="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
-                <a class="text-sm font-semibold" asp-area="" asp-controller="Home" asp-action="Index">Auth</a>
-                <div class="flex items-center gap-4">
-                    <ul class="flex items-center gap-4 text-sm text-slate-600">
-                        <li>
-                            <a class="hover:text-slate-900" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li>
-                            <a class="hover:text-slate-900" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <partial name="_LoginPartial" />
+    @if (!isStandaloneAuthPage)
+    {
+        <header>
+            <nav class="border-b border-slate-200 bg-white">
+                <div class="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
+                    <a class="text-sm font-semibold" asp-area="" asp-controller="Home" asp-action="Index">Auth</a>
+                    <div class="flex items-center gap-4">
+                        <ul class="flex items-center gap-4 text-sm text-slate-600">
+                            <li>
+                                <a class="hover:text-slate-900" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li>
+                                <a class="hover:text-slate-900" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                        </ul>
+                        <partial name="_LoginPartial" />
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="mx-auto w-full max-w-6xl px-4 py-6">
+            </nav>
+        </header>
+    }
+    <div class="@(isStandaloneAuthPage ? "w-full" : "mx-auto w-full max-w-6xl px-4 py-6")">
         <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-t border-slate-200 py-4 text-xs text-slate-500">
-        <div class="mx-auto w-full max-w-6xl px-4">
-            &copy; 2025 - Auth - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (!isStandaloneAuthPage)
+    {
+        <footer class="border-t border-slate-200 py-4 text-xs text-slate-500">
+            <div class="mx-auto w-full max-w-6xl px-4">
+                &copy; 2025 - Auth - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+    }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

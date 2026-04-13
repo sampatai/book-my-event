@@ -89,6 +89,7 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     await Seeder.SeedNavigationMenuAsync(services, CancellationToken.None);
+    await Seeder.SeedOpenIddictClientsAsync(services, CancellationToken.None);
 }
 
 app.UseCors("default");

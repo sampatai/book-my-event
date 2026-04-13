@@ -1,6 +1,5 @@
 using Auth;
 using Auth.Infrastructure.Data;
-using Auth.Infrastructure.Database.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
@@ -102,7 +101,9 @@ if (!app.Environment.IsDevelopment())
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    await DbSeeder.SeedOpenIddictClientsAsync(app.Services, CancellationToken.None);
+
+    using var scope = app.Services.CreateScope();
+    await OpenIddictSeeder.SeedClientsAsync(scope.ServiceProvider, CancellationToken.None);
 
 }
 

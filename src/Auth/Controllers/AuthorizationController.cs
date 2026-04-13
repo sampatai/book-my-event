@@ -138,6 +138,7 @@ public class AuthorizationController : Controller
                         .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
                         .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
                         .SetClaim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user))
+                        .SetClaim(Claims.KeyId, user.Id)
                         .SetClaim("user_id", user.UserId.ToString())
                         .SetClaims(Claims.Role, [.. (await _userManager.GetRolesAsync(user))]);
 
@@ -263,7 +264,7 @@ public class AuthorizationController : Controller
     // to redirect the user agent to the client application using the appropriate response_mode.
     public IActionResult Deny() => Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
-    
+
 
     [ActionName("Logout"), HttpPost("~/connect/logout"), ValidateAntiForgeryToken]
     public async Task<IActionResult> LogoutPost()

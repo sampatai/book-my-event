@@ -83,14 +83,14 @@ public static class DependencyInjection
             throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
         }
 
-        services.AddDbContext<AuthenticationDbContext>(
+        services.AddDbContext<ApplicationDbContext>(
             options => options
                 .UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention());
 
         services.AddIdentityCore<Domain.Users.Root.User>()
             .AddRoles<IdentityRole<long>>()
-            .AddEntityFrameworkStores<AuthenticationDbContext>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager<SignInManager<Domain.Users.Root.User>>()
             .AddUserManager<UserManager<Domain.Users.Root.User>>()
             .AddDefaultTokenProviders();

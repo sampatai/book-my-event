@@ -5,8 +5,7 @@ public sealed record UserDto(
     Guid UserId,
     string? Email,
     string? UserName,
-    string? PhoneNumber,
-    long? ServiceEntityId);
+    string? PhoneNumber);
 
 public sealed record UserClaimDto(string Type, string Value);
 

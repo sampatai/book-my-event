@@ -3,4 +3,5 @@
 public interface IUserContext
 {
     long UserId { get; }
+    Guid UserGuid { get; }
 }
