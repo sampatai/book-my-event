@@ -40,8 +40,9 @@ namespace Application.Query.Pandit
             }
         }
         #endregion
-        public sealed class ListPanditHandler(IPanditReadRepository panditReadRepository) : IQueryHandler<Query, ListPanditResponse>
+        public sealed class ListPanditHandler(IPanditReadRepository panditReadRepository) : IQueryHandler<Query,ListPanditResponse>
         {
+
             public async Task<Result<ListPanditResponse>> Handle(Query query, CancellationToken cancellationToken)
             {
                 var result = await panditReadRepository.ReadAsync(query.PanditFilter, cancellationToken);
@@ -56,10 +57,11 @@ namespace Application.Query.Pandit
                     pandit.Address?.Country
                 )).ToList();
 
-                return new ListPanditResponse {
+                return Result.Success<ListPanditResponse>( new ListPanditResponse {
                     Records = responses,
-                    TotalRecords = result.TotalCount
-                };
+                    TotalRecords = result.TotalCount,
+                    PageNumber=query.PanditFilter.PageNumber
+                });
             }
         }
     }

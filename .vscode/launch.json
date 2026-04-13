@@ -1,0 +1,29 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Web.Api",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Web.Api/Web.Api.csproj",
+      "launchSettingsProfile": "https"
+    },
+    {
+      "name": "Launch Auth",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Auth/Auth.csproj",
+      "launchSettingsProfile": "https"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch Web.Api + Auth",
+      "configurations": ["Launch Web.Api", "Launch Auth"],
+      "stopAll": true
+    }
+  ]
+}

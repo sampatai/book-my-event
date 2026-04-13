@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Abstractions.IRepository;
 using Application.Model;
+using Domain.Common.Enums;
 using Domain.Pandit.Root;
 using FluentValidation;
 using SharedKernel;
@@ -69,6 +70,7 @@ namespace Application.Command
                     street: command.Address.Street,
                     timezone: TimeZoneInfo.Local.Id
                 );
+                pandit.SetVerificationState(VerificationState.Pending);
                 await _panditRepository.AddAsync(pandit, cancellationToken);
                 await _panditRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 

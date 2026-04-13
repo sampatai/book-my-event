@@ -24,6 +24,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+    <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="OpenIddict" />
     <PackageReference Include="OpenIddict.AspNetCore" />
@@ -38,12 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  
-    <Folder Include="Application\" />
-    <Folder Include="Domain\Users\ValueObjects\" />
-  </ItemGroup>
-
-  <ItemGroup>
+  <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 

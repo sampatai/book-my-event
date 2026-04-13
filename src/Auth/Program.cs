@@ -1,6 +1,5 @@
 using Auth;
 using Auth.Infrastructure.Data;
-using Auth.Infrastructure.Database.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
@@ -9,7 +8,7 @@ using Quartz;
 using SharedKernel.Model;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using Microsoft.AspNetCore.Identity;
-using Auth.Domain.Users.Root;
+using Domain.Users.Root;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,8 +49,8 @@ builder.Services.AddOpenIddict()
                        .SetTokenEndpointUris("connect/token")
                        .SetUserInfoEndpointUris("connect/userinfo");
 
-                // Mark the "email", "profile" and "roles" scopes as supported scopes.
-                options.RegisterScopes("web-api");
+                // Mark the "email", "profile" and "roles" scopes as supported scopes along with custom scopes.
+                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles, "web-api", "react-app");
 
                 // Note: the sample uses the code and refresh token flows but you can enable
                 // the other flows if you need to support implicit, password or client credentials.
@@ -83,7 +82,8 @@ builder.Services.AddCors(options => options.AddPolicy("default", policy =>
                 servicesOptions.WebApi.BaseUrl,
                 servicesOptions.ReactClient.BaseUrl)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     }));
 
 
@@ -101,7 +101,9 @@ if (!app.Environment.IsDevelopment())
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    await DbSeeder.SeedOpenIddictClientsAsync(app.Services, CancellationToken.None);
+
+    using var scope = app.Services.CreateScope();
+    await OpenIddictSeeder.SeedClientsAsync(scope.ServiceProvider, CancellationToken.None);
 
 }
 

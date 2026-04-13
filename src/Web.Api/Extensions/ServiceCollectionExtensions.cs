@@ -13,6 +13,8 @@ public static class ServiceCollectionExtensions
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Event API", Version = "v1" });
 
+           
+
             var servicesOptions = new ServicesOptions();
             configuration.GetSection("Services").Bind(servicesOptions);
             var issuer = servicesOptions.Auth.BaseUrl;
@@ -25,9 +27,7 @@ public static class ServiceCollectionExtensions
                         AuthorizationUrl = new Uri($"{issuer}/connect/authorize"),
                         TokenUrl = new Uri($"{issuer}/connect/token"),
                         Scopes = new Dictionary<string, string> {
-                            ["openid"] = "OpenID Connect scope",
-                            ["profile"] = "User profile",
-                            ["email"] = "User email",
+                          
                             ["web-api"] = "Access to the Web API"
                         }
                     }

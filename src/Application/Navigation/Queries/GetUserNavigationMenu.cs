@@ -31,7 +31,7 @@ namespace Application.Navigation.Queries
 
                 foreach (var item in rootItems)
                 {
-                    var isAllowed = true;//IsUserAllowedAccess(item, query.UserPermissions);
+                    var isAllowed = IsUserAllowedAccess(item, query.UserPermissions);
 
                     if (isAllowed)
                     {
@@ -41,7 +41,7 @@ namespace Application.Navigation.Queries
                 }
 
                 response.AvailableActions = MapPermissionsToActionsDynamic(query.UserPermissions);
-                response.User = new("sampat", "adh@email.com", "");
+                response.User = new($"user-{query.UserId}", string.Empty, string.Empty);
 
                 return Result<MenuResponse>.Success(response);
             }

@@ -1,7 +1,9 @@
-﻿using Auth.Domain.Users.Root;
-using Auth.Infrastructure.Data;
+﻿using Auth.Infrastructure.Data;
 using Auth.Infrastructure.Database;
+using Domain.Users.Root;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -26,27 +28,27 @@ namespace Auth
                     options
                     .UseNpgsql(connectionString, npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default));
+                    options.UseSnakeCaseNamingConvention();
                     // This sets the default tracking behavior to NoTracking
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 }, ServiceLifetime.Scoped);
 
             services.AddDataProtection();
 
-            services.AddIdentityCore<User>(options =>
+            // Register Identity with roles and default UI (provides the login page)
+            services.AddIdentity<User, IdentityRole<long>>(options =>
             {
                 // Password configuration
                 options.Password.RequiredLength = 8;
                 options.Password.RequireDigit = true;
                 options.Password.RequireNonAlphanumeric = true;
+
+                // Require confirmed account for sign-in (useful for SSO flows)
+                options.SignIn.RequireConfirmedAccount = true;
             })
-            .AddRoles<IdentityRole<long>>() // Use IdentityRole<long>
-            .AddRoleManager<RoleManager<IdentityRole<long>>>() // Use RoleManager with long as the key type
-            .AddEntityFrameworkStores<AuthenticationDbContext>() // Provide our context
-            .AddSignInManager<SignInManager<User>>() // Use SignInManager
-            .AddUserManager<UserManager<User>>() // Use UserManager to create users
+            .AddEntityFrameworkStores<AuthenticationDbContext>()
             .AddDefaultTokenProviders()
-            .AddDefaultUI();// Enable token providers for email confirmation
-            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AuthenticationDbContext>();
+            .AddDefaultUI(); // Adds the default Razor Pages UI (includes the Login page)
 
 
             return services;
