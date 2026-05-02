@@ -21,5 +21,6 @@
     <None Include="NAVIGATION_IMPLEMENTATION_FIXES.md" />
     <None Include="NAVIGATION_NEXT_STEPS.md" />
     <None Include="src\Web\Api\Endpoints\Pandits\PanditEndpoints.cs" />
+    <None Include="temp\why_search_result.txt" />
   </ItemGroup>
 </Project>

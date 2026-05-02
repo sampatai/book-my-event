@@ -34,8 +34,8 @@ public sealed class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Ap
 
         optionsBuilder
             .UseNpgsql(connectionString, npgsqlOptions =>
-                npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
-            .UseSnakeCaseNamingConvention();
+                npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default));
+            
 
         return new ApplicationDbContext(optionsBuilder.Options, new NoOpDomainEventsDispatcher(), new DesignTimeUserContext());
     }
@@ -50,8 +50,8 @@ public sealed class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Ap
 
     private sealed class DesignTimeUserContext : IUserContext
     {
-        public long UserId => 1;
+        public long UserId => throw new NotImplementedException();
 
-        public Guid UserGuid => Guid.NewGuid();
+        public Guid UserGuid => throw new NotImplementedException();
     }
 }

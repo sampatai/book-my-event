@@ -14,7 +14,7 @@ internal static class ClaimsPrincipalExtensions
     }
     public static long GetUserId(this ClaimsPrincipal? principal)
     {
-        string? userId = principal?.FindFirstValue("kid");
+        string? userId = principal?.FindFirstValue("sub");
 
         return long.TryParse(userId, out long parsedUserId) ?
             parsedUserId :

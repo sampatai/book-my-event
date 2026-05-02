@@ -27,7 +27,6 @@ public sealed class ApplicationDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        modelBuilder.UseOpenIddict();
         modelBuilder.HasDefaultSchema(Schemas.Default);
             base.OnModelCreating(modelBuilder);
 

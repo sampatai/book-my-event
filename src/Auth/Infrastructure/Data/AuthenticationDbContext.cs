@@ -3,34 +3,24 @@ using Domain.Users.Root;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using OpenIddict.EntityFrameworkCore;
-using SharedKernel;
+using OpenIddict.EntityFrameworkCore.Models;
+
 namespace Auth.Infrastructure.Data
 {
-    public class AuthenticationDbContext :  IdentityDbContext<User, IdentityRole<long>, long>
+    public class AuthenticationDbContext :   IdentityDbContext<User, IdentityRole<long>, long>
     {
-       
-
         public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
-            : base(options)
-        {
-            System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->");
+        : base(options) { }
 
-        }
+    public DbSet<OpenIddictEntityFrameworkCoreApplication> OpenIddictApplications { get; set; }
+        public DbSet<OpenIddictEntityFrameworkCoreAuthorization> OpenIddictAuthorizations { get; set; }
+        public DbSet<OpenIddictEntityFrameworkCoreScope> OpenIddictScopes { get; set; }
+        public DbSet<OpenIddictEntityFrameworkCoreToken> OpenIddictTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
             builder.UseOpenIddict();
-            
-         
         }
-
-       
-
-        
-
     }
 }

@@ -138,7 +138,6 @@ public class AuthorizationController : Controller
                         .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
                         .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
                         .SetClaim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user))
-                        .SetClaim(Claims.KeyId, user.Id)
                         .SetClaim("user_id", user.UserId.ToString())
                         .SetClaims(Claims.Role, [.. (await _userManager.GetRolesAsync(user))]);
 
@@ -330,6 +329,7 @@ public class AuthorizationController : Controller
                     .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
                     .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
                     .SetClaim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user))
+                    .SetClaim("user_id", user.UserId.ToString())
                     .SetClaims(Claims.Role, [.. (await _userManager.GetRolesAsync(user))]);
 
             identity.SetDestinations(GetDestinations);

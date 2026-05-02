@@ -28,7 +28,7 @@ namespace Auth
                     options
                     .UseNpgsql(connectionString, npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default));
-                    options.UseSnakeCaseNamingConvention();
+                    //.UseSnakeCaseNamingConvention();
                     // This sets the default tracking behavior to NoTracking
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 }, ServiceLifetime.Scoped);

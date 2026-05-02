@@ -17,16 +17,17 @@
         </div>
 
         <form asp-controller="Authorization" asp-action="Authorize" method="post" class="space-y-3">
+            @Html.AntiForgeryToken()
             @foreach (var parameter in Context.Request.HasFormContentType ?
                 (IEnumerable<KeyValuePair<string, StringValues>>) Context.Request.Form : Context.Request.Query)
             {
                 <input type="hidden" name="@parameter.Key" value="@parameter.Value" />
             }
 
-            <button class="inline-flex h-10 w-full items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800" name="submit.Accept" type="submit">
+            <button class="inline-flex h-10 w-full items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800" name="submit.Accept" type="submit" value="true">
                 Continue
             </button>
-            <button class="inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50" name="submit.Deny" type="submit">
+            <button class="inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50" name="submit.Deny" type="submit" value="true">
                 Cancel
             </button>
         </form>

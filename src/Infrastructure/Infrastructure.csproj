@@ -2,9 +2,12 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
-    <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Humanizer" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
@@ -23,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Database\Factory\" />
-    <Folder Include="Database\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Authorization;
 
-internal sealed class PermissionProvider(ApplicationDbContext authenticationDbContext)
+internal sealed class PermissionProvider(ApplicationDbContext  applicationDbContext)
 {
     public async Task<HashSet<string>> GetForRoleNamesAsync(IReadOnlyCollection<string> roleNames)
     {
@@ -18,13 +18,13 @@ internal sealed class PermissionProvider(ApplicationDbContext authenticationDbCo
             .Distinct()
             .ToList();
 
-        List<long> roleIds = await authenticationDbContext.Roles
+        List<long> roleIds = await applicationDbContext.Roles
             .AsNoTracking()
             .Where(x => normalizedRoleNames.Contains(x.NormalizedName!))
             .Select(x => x.Id)
             .ToListAsync();
 
-        List<string> rolePermissions = await authenticationDbContext.RoleClaims
+        List<string> rolePermissions = await applicationDbContext.RoleClaims
             .AsNoTracking()
             .Where(x => roleIds.Contains(x.RoleId) && x.ClaimType == "permission")
             .Select(x => x.ClaimValue!)

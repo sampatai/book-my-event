@@ -2,11 +2,11 @@
 using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.IRepository;
+using Domain.Users.Root;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.DomainEvents;
-using Infrastructure.Identity;
 using Infrastructure.Persistence.Repository;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -61,13 +61,14 @@ public static class DependencyInjection
         {
             throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
         }
-            
-        services.AddDbContext<ApplicationDbContext>(
-            options => options
-                .UseNpgsql(connectionString, npgsqlOptions =>
-                    npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
-                .UseSnakeCaseNamingConvention());
 
+        services.AddDbContext<ApplicationDbContext>(options =>
+         options
+        .UseNpgsql(connectionString, npgsqlOptions =>
+            npgsqlOptions.MigrationsHistoryTable(
+                HistoryRepository.DefaultTableName,
+                Schemas.Default))
+        );
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         return services;
@@ -85,18 +86,20 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
-                .UseNpgsql(connectionString)
-                .UseSnakeCaseNamingConvention());
+                .UseNpgsql(connectionString));
 
-        services.AddIdentityCore<Domain.Users.Root.User>()
+        services.AddIdentityCore<User>()
             .AddRoles<IdentityRole<long>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddSignInManager<SignInManager<Domain.Users.Root.User>>()
-            .AddUserManager<UserManager<Domain.Users.Root.User>>()
-            .AddDefaultTokenProviders();
+            .AddSignInManager<SignInManager<User>>()
+            .AddUserManager<UserManager<User>>()
+            .AddDefaultTokenProviders()
+
+            ;
 
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
+
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         return services;
@@ -122,6 +125,7 @@ public static class DependencyInjection
         // Add Navigation repositories
         services.AddScoped<INavigationRepository, NavigationRepository>();
         services.AddScoped<INavigationReadRepository, NavigationReadRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

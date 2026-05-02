@@ -6,7 +6,6 @@ using Domain.Navigation.Root;
 using Domain.Users.Root;
 using Domain.ValueObjects;
 using Infrastructure.Database;
-using Infrastructure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
